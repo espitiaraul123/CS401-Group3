@@ -4,7 +4,7 @@ public class Account {
 	private String name;
 	private int accountNumber;
 	private AccountType accountType;
-	private ArrayList<Double> transactions;
+	private ArrayList<Transaction> transactions;
 	private double balance;
 	
 	//Constructor
@@ -12,7 +12,7 @@ public class Account {
 		this.name = name;
 		this.accountNumber = accountNumber;
 		this.accountType = accountType;
-		this.transactions = new ArrayList<Double>();
+		this.transactions = new ArrayList<Transaction>();
 		this.balance = 0.0;
 		
 	}
@@ -43,9 +43,37 @@ public class Account {
 	}
 	
 	//Method to add a transaction to transaction array
-	public void addTranscation(double amount) {
+	public void addTransaction(double amount) {
 		transactions.add(amount);
 		balance += amount;
 	}
 	
+	//Method to deposit money into the account
+		public void deposit(double amount) {
+			balance += amount;
+			transactions.add(new Transaction(transactions.size() + 1, amount, TransactionType.DEPOSIT));
+		}
+	
+	//Method to withdraw money into the account
+		public boolean withdraw(double amount) {
+			if (amount <= balance) {
+				addTransaction(-amount);
+				return true;
+			} else {
+				System.out.println("Sorry your account does not have enough funds");
+				return false;
+			}
+		}
+		
+	//Method to transfer money from this account to another account
+	public boolean transfer(double amount, Account otherAccount) {
+		if (amount <= balance) {
+			addTransaction(-amount);
+			otherAccount.addTransaction(amount);
+			return true;
+		} else {
+			System.out.println("Sorry that account does not exist");
+			return false;
+		}
+	}
 }
