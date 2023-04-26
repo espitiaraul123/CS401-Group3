@@ -72,12 +72,24 @@ public class BankerGUI {
         labelPanel.setBounds(50, 50, 200, 300);
         buttonPanel.setBounds(300, 50, 500, 500);
         
-        Account account = new Account("John Doe", 12345, AccountType.Checking);
+        Account account = new Account("John Doe", 12345, AccountType.Checkings);
         
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to execute when createButton is clicked
+                String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
+                Double initialDeposit = JOptionPane.showInputDialog(frame, "Initial Deposit: ");
+                Customer customer = null;
+                if(accoountType.equals("Checkings")) {
+                	AccountType type = AccountType.Checkings;
+                }else if(accountType.equals("Savings")) {
+                	AccountType type = AccountType.Savings;
+                }
+                
+                customer.addAccount(initalDeposit, type)
+                balanceLabel.setText("New Account Added!");
+
             }
         });
         
@@ -85,6 +97,11 @@ public class BankerGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to execute when createButton is clicked
+            	
+            	int acctID = JOptionPane.showInputDialog(frame, "What is the ID number of the account to close:");
+            	customer.closeAccount(acctID);
+            	balanceLabel.setText("Account was closed!");
+            	
             }
         });
 
