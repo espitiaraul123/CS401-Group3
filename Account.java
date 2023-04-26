@@ -36,8 +36,8 @@ public class Account {
 	}
 
 	//Getter to retrieve transaction array
-	public ArrayList<Transaction> getAllTransactions(){
-		return transactions; // returns the list of transactions
+	public ArrayList<Transaction> getTransactions(){
+		return this.transactions; // returns the list of transactions
 	}
 
 	//Getter to retrieve Account balance
@@ -54,13 +54,22 @@ public class Account {
 			if(transactions.get(i).getDate().equals(date)) {
 				transactionsByDate += transactions.get(i).toString();
 			}
-
 		}
 
 		return transactionsByDate;
-
-
 	}
+	
+	// getter for the whole transaction history
+	public String transactionHistory() {
+		String transactionHistory = "";
+		for(int i = 0; i < transactions.size(); i++) {
+			transactionHistory += transactions.get(i).toString();
+			
+		}
+		return transactionHistory;
+		
+	}
+	
 
 	//Method to add a transaction to transaction array    
 	public void addTransaction(ArrayList<Transaction> transactions, Transaction transaction) {
@@ -107,11 +116,11 @@ public class Account {
 	}
 
 	public String toString() {
-		return("Customer: " + name + 
-				"\nAccount Number:\t" + accountNumber + 
-				"\nAccount Type:\t" + accountType +
-				"\nAccount Balance:\t$" + balance +
-				"\nTotal Transactions: " + transactions.size());
+		return(name + 
+				"," + accountNumber + 
+				"'," + accountType +
+				"," + balance +
+				"," + transactions.size());
 	}
 
 

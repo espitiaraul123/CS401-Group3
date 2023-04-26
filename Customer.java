@@ -13,14 +13,14 @@ public class Customer {
 	private ArrayList<Account> accounts = null; // list of transactions
 
 	private static int count = 0;
-
+	String name, int numberOfAccounts,
 
 	//Constructor to initialize instance variables
-	public Customer(int numberOfAccounts, String name, String UserID, String pin, String address) {
+	public Customer(String pin, String name, int numberOfAccounts, String address) {
 		//Setting the Customer's attributes
 		this.numberOfAccounts = accounts.size();
 		this.name = name;
-		this.UserID = UserID;
+		this.UserID = count++;
 		this.pin = pin;
 		this.address = address;
 	}
@@ -57,7 +57,7 @@ public class Customer {
 	}
 
 
-	// get account info
+	// get account info in a toString
 	public String getAllAccountsInfo(){
 		String accts = "";
 		for(int i = 0; i < accounts.size(); i++) {
@@ -109,6 +109,21 @@ public class Customer {
 	}
 
 
+	// This method saves a list of transactions to a file
+	public static void save(String fileName) {
+		try {
+			FileWriter filename = new FileWriter(fileName);
+			// Loop through the transactions and write them to the file
+			for (Transaction t: transactions) {
+				writer.write(t.toString() + "\n");
+			}
+			filename.close();
+		} catch (IOException e) {
+			System.out.println("An error occurred while writing the transaction to the file.");
+		}
+	}
+
+
 
 	//Getter to retrieve number of accounts
 	public int getnumberOfAccounts() {
@@ -135,12 +150,25 @@ public class Customer {
 	public String getPin() {
 		return pin;
 	}
+	
+	//getter for email: contact info
+	public String getEmail() {
+		return email;
 
+	}
 
 
 	//Getter to retrieve Customer's name
 	public String getAddress() {
 		return address;
+	}
+	
+	public String toString() {
+		String allAcctsInfo = getAllAccountsInfo();
+		
+		return (name + "," + userID + "," + allAcctsInfo);
+	
+		
 	}
 
 
