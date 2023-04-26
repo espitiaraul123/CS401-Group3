@@ -41,23 +41,6 @@ public class Transaction {
 		return type;
 	}
 
-
-	/*
-// maybe works better in the account class
-	// This method saves a list of transactions to a file
-	public static void saveTransactions(List<Transaction> transactions, String fileName) {
-		try {
-			FileWriter filename = new FileWriter(fileName);
-			// Loop through the transactions and write them to the file
-			for (Transaction t: transactions) {
-				writer.write(t.toString() + "\n");
-			}
-			filename.close();
-		} catch (IOException e) {
-			System.out.println("An error occurred while writing the transaction to the file.");
-		}
-	}*/
-
 	// This method returns a string representation of the transaction
 	@Override
 	public String toString() {
@@ -77,10 +60,8 @@ public class Transaction {
 		String strDate = String.format("%Ta %Tb %Td %TT %TZ %TY", date);
 
 		// return a formatted string with transaction ID, type, and amount
-		return String.format("Date: %s \nID: %d, \n%s: %.2f", strDate, transactionID, transactionType, amount);
+		return String.format("%s,%d,%s,%.2f", strDate, transactionID, transactionType, amount);
 
-
-		//return String.format("ID: %d, %s: %.2f", transactionID, transactionType, amount);
 	}
 }
 
