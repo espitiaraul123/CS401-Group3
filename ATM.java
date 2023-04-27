@@ -41,7 +41,7 @@ public class ATM {
 		    if (option == JOptionPane.OK_OPTION) {
 		        try {
 		            double amount = Double.parseDouble(depositAmountField.getText());
-		            account.deposit(amount);
+		            account.deposit(amount, TransactionType.DEPOSIT);
 		            balanceLabel.setText("Balance: " + account.getBalance());
 		            JOptionPane.showMessageDialog(null, "Deposit successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
 		        } catch (NumberFormatException ex) {
@@ -49,7 +49,7 @@ public class ATM {
 		        }
 		    }
 			double amount = Double.parseDouble(depositAmountField.getText());
-			account.deposit(amount);
+			account.deposit(amount, TransactionType.DEPOSIT);
 			balanceLabel.setText("Balance: " + account.getBalance());
 		});
 		
@@ -62,7 +62,7 @@ public class ATM {
 		    if (option == JOptionPane.OK_OPTION) {
 		        try {
 		            double amount = Double.parseDouble(withdrawAmountField.getText());
-		            account.withdraw(amount);
+		            account.withdraw(amount, TransactionType.WITHDRAW);
 		            balanceLabel.setText("Balance: " + account.getBalance());
 		            JOptionPane.showMessageDialog(null, "Withdrawal successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
 		        } catch (NumberFormatException ex) {
