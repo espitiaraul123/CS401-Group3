@@ -11,6 +11,7 @@ public class BankerGUI {
     private JPanel buttonPanel, labelPanel;
     private JLabel nameLabel, balanceLabel;
     private JList<String> customerList;
+    private Customer customer;
 
     public BankerGUI() {
         //Set a custom Frame size 
@@ -72,7 +73,7 @@ public class BankerGUI {
         labelPanel.setBounds(50, 50, 200, 300);
         buttonPanel.setBounds(300, 50, 500, 500);
         
-        Account account = new Account("John Doe", 12345, AccountType.Checkings);
+        //Account account = new Account("John Doe", 12345, AccountType.Checkings);
         
         createButton.addActionListener(new ActionListener() {
             @Override
@@ -81,13 +82,13 @@ public class BankerGUI {
                 String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
                 Double initialDeposit = JOptionPane.showInputDialog(frame, "Initial Deposit: ");
                 Customer customer = null;
-                if(accoountType.equals("Checkings")) {
+                if(accountType.equals("Checkings")) {
                 	AccountType type = AccountType.Checkings;
                 }else if(accountType.equals("Savings")) {
                 	AccountType type = AccountType.Savings;
                 }
                 
-                customer.addAccount(initalDeposit, type)
+                customer.addAccount(initalDeposit, type);
                 balanceLabel.setText("New Account Added!");
 
             }
@@ -98,7 +99,7 @@ public class BankerGUI {
             public void actionPerformed(ActionEvent e) {
                 // Code to execute when createButton is clicked
             	
-            	int acctID = JOptionPane.showInputDialog(frame, "What is the ID number of the account to close:");
+            	String acctID = JOptionPane.showInputDialog(frame, "What is the ID number of the account to close:");
             	customer.closeAccount(acctID);
             	balanceLabel.setText("Account was closed!");
             	
@@ -108,7 +109,7 @@ public class BankerGUI {
         depositButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String amountText = JOptionPane.showInputDialog(frame, "Enter amount to deposit:");
+                String amountText = JOptionPane.showInputDialog(frame, "Enter amount to deposit:$");
                 double amount = Double.parseDouble(amountText);
                 account.deposit(amount);
                 balanceLabel.setText("Balance: $" + account.getBalance());
@@ -118,14 +119,26 @@ public class BankerGUI {
         withdrawButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Code to execute when createButton is clicked
+                String amountText = JOptionPane.showInputDialog(frame, "Enter the amount to withdraw:$ ");
+                double amount = Double.parseDouble(amountText);
+                account.withdraw(amount);
+                balanceLabel.setText("Balance:$ " + account.getBalance());
             }
         });
 
         transferButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Code to execute when createButton is clicked
+            	//Get the selected account from the JList
+            	String selectAccount = customerList.getSelectedValue();
+            	
+            	//Ask the user how much they want to transfer, to what account they want to put funds into, 
+                String amountText = JOptionPane.showInputDialog(frame, "Enter the amount to transfer: ");
+                double amount = Double.parseDouble(amountText);
+                String accIDText = JOptionPane.showInputDialog(frame, "Which account would you like to add funds to; ");
+                int accID = Integer.parseInt(accIDText);
+                
+                
             }
         });
 
@@ -137,11 +150,11 @@ public class BankerGUI {
         });
 
         logoutButton.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
-                // Code to execute when createButton is clicked
-            }
-        });
+                JOptionPane.showMessageDialog(frame, "Goodbye, We hope to see you again!");
+                System.exit(0);	// End program
+             }
+          });
 
 
     }
