@@ -60,7 +60,9 @@ public class Transaction {
 		String strDate = String.format("%Ta %Tb %Td %TT %TZ %TY", date);
 
 		// return a formatted string with transaction ID, type, and amount
-		return String.format("%s,%d,%s,%.2f", strDate, transactionID, transactionType, amount);
+		//return String.format("%s,%d,%s,%.2f", strDate, transactionID, transactionType, amount);
+		return String.format("%d,%.2f,%s,%s", transactionID, amount, transactionType, strDate);
+
 
 	}
 }
