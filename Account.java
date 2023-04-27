@@ -112,7 +112,7 @@ public class Account {
 
 	//Method to transfer money from this account to another account
 	public boolean transfer(double amount, Account accountReceipient) {
-		
+		// withdraw funds from senderAccount and deposit in the receiver accounts
 		bool tranfered = withdraw(amount, TransactionType.TRANSFER_OUT); //sender
 		accountReceipient.deposit(amount, TransactionType.TRANSFER_IN); // receiver 
 
