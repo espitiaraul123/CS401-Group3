@@ -9,7 +9,7 @@ import javax.swing.JTextField;
 
 public class ATM {
 	public static void main (String[] args) {		
-		Account account = new Account("Sediq Aziz", 12345, AccountType.Checking);
+		Account account = new Account("Sediq Aziz", AccountType.Checkings, 12345);
 		
 		//Create GUI Components
 		JTextField accountNumberField = new JTextField(10);
