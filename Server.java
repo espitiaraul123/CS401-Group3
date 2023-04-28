@@ -164,20 +164,23 @@ public class Server {
 		}
 
 
-		public boolean verifyLogIn(List<String> loginData){
+		public Message verifyLogIn(List<String> loginData){
 			//{userID, pin}
+			
 			int userID = loginData.get(0);
 			int pin = loginData.get(1);
+			//MsgStatus status = MsgStatus.Undefined;
+			//MsgType msgType = MsgType.Login;
 
 			if(customer.getUserID() == userID && customer.getPin()) {
-				return true;
+				return (new Message(MsgType.Login, MsgStatus.Success, "Correct UserID and Pin"));
 			}
 			else {
-				return false;
+				return (new Message(MsgType.Login, MsgStatus.Failure, "Incorrect UserID and Pin"));
 			}
 		}
 		
-		public boolean doDesosit(List<String> depositData) {
+		public Message doDesosit(List<String> depositData) {
 			Account acct = null;
 			
 			// if account given then process 
@@ -185,17 +188,21 @@ public class Server {
 			
 			// if only the Account ID is given then find associated account
 			int acctID = (int) depositData.get(0);
+			// find account using account id and customers name
+			acct = customer.findAccount(acctID, customer.getName());
 			
-			
+			// get the amount to deposit and the transaction type
 			double amount = (double) depositData.get(1);
 			TransactionType type = (TransactionType) withdrawData.get(2);
-
-
-			acct = customer.findAccount(acctID, customer.getName());
 			
 			// deposit
 			acct.deposit(amount, type);
-			return true;
+			String balancAfterDeposit = (String) acct.getBalance();
+			String amtDeposit = (String) amount;
+			
+			// return message type deposit
+			// message text = amount to depsoit, balance of funds in account after the deposit transaction
+			return (new Message(MsgType.Desposit, MsgStatus.Success, amtDeposit + "," + balancAfterDeposit));
 			
 		}
 		
@@ -205,26 +212,36 @@ public class Server {
 			// if account given
 			//acct = (Account) depositData.get(0);	
 			
-			// if only acct id given
+			// if only acct id given then find account with given/known info
 			int acctID = (int) withdrawData.get(0);
 			acct = customer.findAccount(acctID, customer.getName());
 			
 			double amount = (double) withdrawData.get(1);
 			TransactionType type = (TransactionType) withdrawData.get(2);
 			
+			String amtWithdraw = (String) amount;
+
+			// if amount is less than balance thenn withdraw
 			if(acct.getBalance() > 0.01 && amount <= acct.getBalance()) {
 				
-				return acct.withdraw(amount, type);			
+				if(acct.withdraw(amount, type)) {
+					String balancAfteWithdraw = (String) acct.getBalance();
+					
+					// message text = amount to withdraw, balance of funds in account after the withdraw transaction
+					return (new Message(MsgType.Withdraw, MsgStatus.Success, amtWithdraw + "," + balancAfteWithdraw));
+
+					
+				}
 			}
 			else {
-				return false;
+				return (new Message(MsgType.Withdraw, MsgStatus.Falure, "Insufficient Funds"));
 			}
 			
 			
 		}
 		
 		
-		public boolean doTransfer(List<String> transferData) {
+		public Message doTransfer(List<String> transferData) {
 			Account accountSender = null;
 			Account accountReceipient = null;
 			
@@ -238,23 +255,73 @@ public class Server {
 			accountSender = customer.findAccount(idFrom, customer.getName());
 			accountReceipient = customer.findAccount(idTo, customer.getName());
 
+			String amountToTransfer = transferData.get(2);
+			double amount = (double) amountToTransfer;
 			
-			double amount = (double) transferData.get(2);
-			
-			return accountSender.transfer(amount, accountReceipient);
+			if(accountSender.transfer(amount, accountReceipient)) {
+				
+				
+				return (new Message(MsgType.Transfer, MsgStatus.Success, amountToTransfer + "," + accountSender.getBalance()+ "," + accountReceipient.getBalance()));
+
+			}
+			else {
+				
+				return (new Message(MsgType.Transfer, MsgStatus.Failure, "Failed to transfer");
+
+			}
 	
 		}
 		
-		public boolean newCustomer(List<String> customerData) {
+		public Message newCustomer(List<String> customerData) {
 			
 			String name = customerData.get(0);
 			int pin = (int) customerData.get(1);
 			String address = customer.get(2);
 			
 			Customer newCustomer = new Customer(pin, name, address);
-			return true;
+			String customerInfo = name + "," + newCustomer.getUserID();
+			return (new Message(MsgType.NewCustomer, MsgStatus.Success, customerInfo));
 
 		}
+		
+		public Message newAccount(List<String> accountData) {
+			
+			String name = accountData.get(0);
+			AccountType type = (AccountType) accountData.get(1);
+			double initialDeposit = (double) accountData.get(2);
+			
+			Account newAccount = customer.addAccount(initialDeposit, type);
+			
+			String accountInfo = name + "," + newAccount.getAccountNumber() + "," + newAccout.getBalance();
+			return (new Message(MsgType.NewAccount, MsgStatus.Success, accountInfo));
+
+		}
+		
+		public Message removeCustomer(List<String> customerData) {
+			
+			// use hash map?
+			return (new Message(MsgType.RemoveCustomer, MsgStatus.Undefined, "Remove Customer"));
+			
+		}
+		
+		public Message removeAccount(List<String> accountData) {
+			
+			int accountNumber = (int) accountData.get(0);
+			
+			customer.closeAccount(accountNumber);
+			
+			return (new Message(MsgType.RemoveAccount, MsgStatus.Success, "Account Closed"));
+			
+		}
+		
+		
+		public Message loggingOut(List<String> customerData) {
+			
+			return (new Message(MsgType.Logout, MsgStatus.Success, "Logged out!"));
+			
+		}
+		
+		
 		
 
 		
