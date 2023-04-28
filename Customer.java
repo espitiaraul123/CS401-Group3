@@ -12,7 +12,7 @@ public class Customer {
 	private String email;
 	private ArrayList<Account> accounts;  // list of transactions
 
-	private static int count = 0;
+	private static int count = 100001;
 	String name, int numberOfAccounts,
 
 	//Constructor to initialize instance variables
@@ -112,10 +112,11 @@ public class Customer {
 	}
 
 	// add a new account to the under the Customer's name
-	public void addAccount(double initialDeposit, AccountType type) {
-		accounts.add(new Account(name, type, initialDeposit));
+	public Account addAccount(double initialDeposit, AccountType type) {
+		Account newAcct = new Account(name, type, initialDeposit);
+		accounts.add(newAcct);
 		numberOfAccounts++;
-
+		return newAcct;
 
 	}
 
