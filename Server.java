@@ -164,7 +164,7 @@ public class Server {
 		}
 
 
-		public Message verifyLogIn(List<String> loginData){
+		public Message verifyLogIn(Customer customer, List<String> loginData){
 			//{userID, pin}
 			
 			int userID = loginData.get(0);
@@ -180,7 +180,7 @@ public class Server {
 			}
 		}
 		
-		public Message doDesosit(List<String> depositData) {
+		public Message doDesosit(Customer customer, List<String> depositData) {
 			Account acct = null;
 			
 			// if account given then process 
@@ -206,7 +206,7 @@ public class Server {
 			
 		}
 		
-		public boolean doWithdraw(List<String> withdrawData) {
+		public boolean doWithdraw(Customer customer, List<String> withdrawData) {
 			Account acct = null;
 			
 			// if account given
@@ -241,7 +241,7 @@ public class Server {
 		}
 		
 		
-		public Message doTransfer(List<String> transferData) {
+		public Message doTransfer(Customer customer, List<String> transferData) {
 			Account accountSender = null;
 			Account accountReceipient = null;
 			
@@ -284,7 +284,7 @@ public class Server {
 
 		}
 		
-		public Message newAccount(List<String> accountData) {
+		public Message newAccount(Customer customer, List<String> accountData) {
 			
 			String name = accountData.get(0);
 			AccountType type = (AccountType) accountData.get(1);
@@ -304,7 +304,7 @@ public class Server {
 			
 		}
 		
-		public Message removeAccount(List<String> accountData) {
+		public Message removeAccount(Customer customer, List<String> accountData) {
 			
 			int accountNumber = (int) accountData.get(0);
 			
