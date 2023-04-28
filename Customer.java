@@ -6,28 +6,46 @@ public class Customer {
 
 	private int numberOfAccounts;
 	private String name;
-	private String UserID;
-	private String pin;
+	private int UserID;
+	private int pin;
 	private String address;
 	private String email;
-	private ArrayList<Account> accounts = null; // list of transactions
+	private ArrayList<Account> accounts;  // list of transactions
 
-	private static int count = 0;
+	private static int count = 100001;
 	String name, int numberOfAccounts,
 
 	//Constructor to initialize instance variables
-	public Customer(String pin, String name, int numberOfAccounts, String address) {
+	public Customer(int pin, String name, String address) {
 		//Setting the Customer's attributes
-		this.numberOfAccounts = accounts.size();
+		this.numberOfAccounts = 0;
 		this.name = name;
 		this.UserID = count++;
 		this.pin = pin;
 		this.address = address;
+		this.accounts = null;
+	}
+	
+    public Customer(int pin, String name, String address, int numAccounts, ArrayList<Account> accounts) {
+		//Setting the Customer's attributes
+		this.numberOfAccounts = numAccounts;
+		this.name = name;
+		this.UserID = count++;
+		this.pin = pin;
+		this.address = address;
+		this.accounts = accounts;
+    	
+    }
+
+	
+	public void setAccounts(ArrayList<Account> accounts) {
+		this.accounts = accounts;
+		
 	}
 
 	//Setter to modify number of accounts
 	public void setNumberOfAccounts(int numberOfAccounts) {
-		this.numberOfAccounts = accounts.size();	
+		this.numberOfAccounts = numberOfAccounts;	
 	}
 
 	//Setter to modify Customer's name
@@ -59,15 +77,21 @@ public class Customer {
 
 	// get account info in a toString
 	public String getAllAccountsInfo(){
-		String accts = "";
+		String customerAccounts = "";
 		for(int i = 0; i < accounts.size(); i++) {
 
-			accts += (accounts.get(i).toString() + "\n");
+			customerAccounts += (accounts.get(i).toString() + "\n");
 
 		}
 
-		return accts;
+		return customerAccounts;
 
+	}
+	
+	public ArrayList<Account> getAccounts(){
+		
+		return accounts;
+		
 	}
 
 
@@ -88,15 +112,20 @@ public class Customer {
 	}
 
 	// add a new account to the under the Customer's name
-	public void addAccount(double initialDeposit, AccountType type) {
-		accounts.add(new Account(name, type, initialDeposit));
+	public Account addAccount(double initialDeposit, AccountType type) {
+		Account newAcct = new Account(name, type, initialDeposit);
+		accounts.add(newAcct);
+		numberOfAccounts++;
+		return newAcct;
 
 	}
 
 	public void closeAccount(int accountID) {
-
+		
 		Account closeAcct = findAccount(accountID, name);
 		accounts.remove(closeAcct);
+		numberOfAccounts--;
+
 
 	}
 
@@ -109,17 +138,19 @@ public class Customer {
 	}
 
 
-	// This method saves a list of transactions to a file
-	public static void save(String fileName) {
+	// This method saves a Customer to a file
+	public static void saveCustomer(String fileName) {
 		try {
 			FileWriter filename = new FileWriter(fileName);
 			// Loop through the transactions and write them to the file
-			for (Transaction t: transactions) {
-				writer.write(t.toString() + "\n");
-			}
+			String customer = toString();
+			writer.write(customer);
+			/*for (Transaction t: transactions) {
+				writer.write(toString());
+			}*/
 			filename.close();
 		} catch (IOException e) {
-			System.out.println("An error occurred while writing the transaction to the file.");
+			System.out.println("An error occurred while writing the Customer to the file.");
 		}
 	}
 
@@ -164,9 +195,11 @@ public class Customer {
 	}
 	
 	public String toString() {
-		String allAcctsInfo = getAllAccountsInfo();
 		
-		return (name + "," + userID + "," + allAcctsInfo);
+		String customerAccounts = getAllAccountsInfo();
+		
+		return (pin + "," + name + "," + address + "," + numberOfAccounts +
+				"\n" + customerAccounts);
 	
 		
 	}

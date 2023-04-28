@@ -6,6 +6,8 @@ public class Account {
 	private int accountNumber; // account number
 	private AccountType accountType; // account type (e.g., savings, checking, etc.)
 	private ArrayList<Transaction> transactions = null; // list of transactions
+	private int accountNumber; // account number
+	private int numberOfTransactions; // amount of transactions
 	private double balance; // account balance
 	private static int count = 10000;
 	private Date date;
@@ -17,7 +19,18 @@ public class Account {
 		this.accountNumber = count++;
 		this.accountType = accountType;
 		this.transactions = new ArrayList<Transaction>(); // creates an empty ArrayList of transactions
+		this.numberOfTransactions = 0;
 		this.balance = initialDeposit; // sets the balance to zero upon account creation
+	}
+	
+	public Account(double balance, AccountType accountType, int numTransactions, ArrayList<Transaction> transactions) {
+		this.accountNumber = count++;
+		this.accountType = accountType;
+		this.transactions = transactions; // creates an empty ArrayList of transactions
+		this.numberOfTransactions = numTransactions;
+		this.balance = balance; // sets the balance to zero upon account creation
+		
+		
 	}
 
 	//Getter to retrieve Customer's name
@@ -63,7 +76,7 @@ public class Account {
 	public String transactionHistory() {
 		String transactionHistory = "";
 		for(int i = 0; i < transactions.size(); i++) {
-			transactionHistory += transactions.get(i).toString();
+			transactionHistory += (transactions.get(i).toString() + "\n");
 			
 		}
 		return transactionHistory;
@@ -73,55 +86,56 @@ public class Account {
 
 	//Method to add a transaction to transaction array    
 	public void addTransaction(ArrayList<Transaction> transactions, Transaction transaction) {
-		transactions.add(transaction); // adds a transaction (i.e., a deposit or a withdrawal) to the list of transactions
-		//balance += amount; // updates the account balance with the amount of the transaction
+		// adds a transaction (i.e., a deposit or a withdrawal) to the list of transactions
+		numTransactions++;
+		transactions.add(transaction); 
 
 	}
 
 	//Method to deposit money into the account
-	public void deposit(double amount) {
+	public void deposit(double amount, TransactionType type) {
 		balance += amount; // adds the deposited amount to the account balance
-		addTransaction(transactions, new Transaction(amount, TransactionType.DEPOSIT)); // adds a deposit transaction to the list of transactions
+		addTransaction(transactions, new Transaction(amount, type)); // adds a deposit transaction to the list of transactions
 	}
 
 	//Method to withdraw money from the account
-	public boolean withdraw(double amount) {
+	public boolean withdraw(double amount, TransactionType type) {
 		if (amount <= balance && balance > 0) { // if the account has sufficient funds for the withdrawal
 			balance -= amount;
-			addTransaction(transactions, new Transaction(amount*-1, TransactionType.WITHDRAW)); // adds a deposit transaction to the list of transactions
-			return true;
-
-			//addTransaction(-amount); // adds a withdrawal transaction to the list of transactions (with a negative amount)
-			//return true; // returns true to indicate a successful withdrawal
+			addTransaction(transactions, new Transaction(amount*-1, type)); // adds a deposit transaction to the list of transactions
+			return true; // returns true to indicate a successful withdrawal
+			
 		} else { // if the account does not have enough funds for the withdrawal
-			System.out.println("Sorry your account does not have enough funds"); // prints an error message
 			return false; // returns false to indicate a failed withdrawal
 		}
 	}//addTransaction(-amount);
 
 	//Method to transfer money from this account to another account
-	public boolean transfer(double amount, Account otherAccount) {
-		if (amount <= balance && balance > 0.00) { // if the account has sufficient funds for the transfer
-			// adds a transfer transaction to the list of transactions (with a negative amount)
-			addTransaction(transactions, new Transaction(amount*-1, TransactionType.TRANSFER_OUT));
-			// adds a transfer transaction to the other account's list of transactions (with a positive amount)
-			addTransaction(otherAccount.getAllTransactions(), new Transaction(amount, TransactionType.TRANSFER_IN)); 
-			return true; // returns true to indicate a successful transfer
+	public boolean transfer(double amount, Account accountReceipient) {
+		// withdraw funds from senderAccount and deposit in the receiver accounts
+		bool tranfered = withdraw(amount, TransactionType.TRANSFER_OUT); //sender
+		accountReceipient.deposit(amount, TransactionType.TRANSFER_IN); // receiver 
+
+		if (transfered) {
+			return true;
 
 
 		} else { // if the account does not have enough funds for the transfer
-			System.out.println("Sorry that account does not exist"); // prints an error message
 			return false; // returns false to indicate a failed transfer
 		}
 	}
 
 	public String toString() {
-		return(name + 
-				"," + accountNumber + 
-				"'," + accountType +
-				"," + balance +
-				"," + transactions.size());
+		String accountTransactions = transactionHistory();
+		
+		//return(name + "," + accountNumber + "," + accountType + "," + balance + "," + transactions.size());
+		return(accountNumber + "," + balance + "," + accountType + "," + transactions.size() +
+				"\n" + accountTransactions);
+
+		
 	}
+	
+	
 
 
 
