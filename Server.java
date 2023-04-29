@@ -76,7 +76,6 @@ public class Server {
 			}
         }
         
-        /* NOT READY
         public void writeCustomersToFile(Map<Integer, Customer> customers) {
         	try {
         		FileWriter customerDataFile = new FileWriter("customerData.txt");
@@ -92,8 +91,7 @@ public class Server {
         		e.printStackTrace();
         	}
         }
-		*/ 
-        
+
         public void readCustomersFromFile(Map<Integer, Customer> customers) {
         	try {
         		// Open file that holds all the data for every customer.
