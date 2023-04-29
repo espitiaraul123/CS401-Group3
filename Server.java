@@ -1,3 +1,280 @@
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.io.IOException;  // Import the IOException class to handle errors
+
+public class Server {
+	public static void main(String[] args) {
+		ServerSocket server = null;
+
+		try {
+			// server is listening on port 1234
+			server = new ServerSocket(1234);
+			server.setReuseAddress(true);
+			
+			System.out.println("Server Started");
+			
+			// Infinite loop accepts incoming client connections and creates new thread for each client
+			while (true) {
+				Socket client = server.accept(); 						// socket object to receive incoming client requests
+				ClientHandler clientSock = new ClientHandler(client);	// create a new thread object
+				new Thread(clientSock).start();							// This thread will handle the client separately
+			}
+		}
+		catch (IOException e) {
+		}
+		finally {
+			if (server != null) {
+				try {
+					server.close();
+				}
+				catch (IOException e) {
+				}
+			}
+		}
+	}
+	
+    private static class ClientHandler implements Runnable {
+        private Socket socket;
+
+        ClientHandler(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+			Message message = null;
+			//boolean connection = false;
+			
+    		// A HashMap to hold all the Customer's information
+    		// including all its accounts and transactions
+        	Map<Integer, Customer> customers = new HashMap<>();
+        	readCustomersFromFile(customers);
+			
+			try {
+		        // create a ObjectOutputStream so we can write data from it.
+		        // ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+		        // create a ObjectInputStream so we can read data from it.
+		        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+
+		        while((message = (Message)objectInputStream.readObject()) != null) {
+		        	// do stuff
+		        	/* Tests
+		        	System.out.println("POOP");
+		        	Customer testCustomer = customers.get(123);
+		        	System.out.println(testCustomer.getName());
+		        	System.out.println("WORKED");
+		        	
+		        	System.out.println(getNewUserID());
+		        	
+		        	List<String> newCustomerData = List.of("222", "Bobby");
+		        	createNewCustomer(newCustomerData, customers);
+		        	writeCustomersToFile(customers);
+		        	*/
+		        }
+			} catch (Exception e) {
+			}
+        }
+        
+        /* NOT READY
+        public void writeCustomersToFile(Map<Integer, Customer> customers) {
+        	try {
+        		FileWriter customerDataFile = new FileWriter("customerData.txt");
+        		BufferedWriter fileWriter = new BufferedWriter(customerDataFile);
+        		
+
+        		for (Map.Entry<Integer, Customer> customer : customers.entrySet()) {
+        			Customer tempCustomer = customer.getValue();
+        			fileWriter.write(tempCustomer.toString());
+        		}
+        		fileWriter.close();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        }
+		*/ 
+        
+        public void readCustomersFromFile(Map<Integer, Customer> customers) {
+        	try {
+        		// Open file that holds all the data for every customer.
+        		// Example of file structure:
+        		// customer 1
+        		// account 1
+        		// transaction 1
+        		// transaction 2
+        		// transaction 3
+        		// account 2
+        		// transaction 1
+        		// transaction 2
+        		// transaction 3
+        		// customer 2
+        		// etc.
+        		// Each piece of data is separated by a comma.
+        		FileReader customerDataFile = new FileReader("customerData.txt");
+        		BufferedReader fileReader = new BufferedReader(customerDataFile);
+        		
+        		// Read every line of the file, while organizing everything to a customer object
+        		String line = fileReader.readLine();
+        		while (line != null) {
+        			// Splits up the line of text, separating everything by commas
+        			String[] customerParts = line.split(",");
+        			
+        			// organize the data into variables (just for readability)
+        			int userID = Integer.parseInt(customerParts[0]);
+        			int PIN = Integer.parseInt(customerParts[1]);
+        			String name = customerParts[2];
+        			int numAccounts = Integer.parseInt(customerParts[3]);
+        			
+        			// Get all the accounts the customer has
+        			List<Account> accounts = new ArrayList<>();
+        			for (int i = 0; i < numAccounts; i++) {
+        				// Remember every object is in its own line
+        				line = fileReader.readLine();
+        				// Splits up the line of text, separating everything by commas
+        				String[] accountParts = line.split(",");
+        				
+        				// organize the data into variables (just for readability)
+        				int accountID = Integer.parseInt(accountParts[0]);
+        				double balance = Double.parseDouble(accountParts[1]);
+        				String accountType = accountParts[2];
+        				int numTransactions = Integer.parseInt(accountParts[3]);
+        				
+        				// Get all the transactions the account has
+        				List<Transaction> transactions = new ArrayList<>();
+        				for (int j = 0; j < numTransactions; j++) {
+        					// Remember every object is in its own line
+        					line = fileReader.readLine();
+        					// Splits up the line of text, separating everything by commas
+        					String[] transactionParts = line.split(",");
+        					
+        					// organize the data into variables (just for readability)
+        					int transactionID = Integer.parseInt(transactionParts[0]);
+        					double amount = Double.parseDouble(transactionParts[1]);
+        					String transactionType = transactionParts[2];
+        					String date = transactionParts[3];
+        					
+        					// Create a new transaction object with this data
+        					Transaction transaction = new Transaction(transactionID, amount, transactionType, date);
+        					// Add this transaction object into the list of transactions that this account has
+        					transactions.add(transaction);
+        				}
+        				// Create a new account object with this data
+        				Account account = new Account(accountID, balance, accountType, numTransactions, transactions);
+        				// Add this account object into the list of accounts that this customer has
+        				accounts.add(account);
+        			}
+        			// Create a new customer object with this data
+        			Customer customer = new Customer(userID, PIN, name, numAccounts, accounts);
+        			// Add this customer object into the HashMap of customers
+        			customers.put(customer.getUserID(), customer);
+        			
+        			// Repeat!
+        			line = fileReader.readLine();
+        		}
+        		// Close file when done :)
+        		fileReader.close();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        }
+        
+        public void createNewCustomer(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = getNewUserID();
+        	int PIN = Integer.parseInt(data.get(0));
+        	String name = data.get(1);
+        	
+        	Customer customer = new Customer(userID, PIN, name);
+        	customers.put(userID, customer);
+        }
+        
+        // To get a unique userID, the current userID is retrieved from a 
+        // text file, is incremented, and then stored back into the text file.
+        // This function will get a unique userID, and then return it.
+        public int getNewUserID() {
+        	// IDData[0] holds largest userID
+        	// IDData[0] holds largest accountID
+        	// IDData[0] holds largest transactionID
+    		List<String> IDData = new ArrayList<>();
+        	int newUserID;
+    		
+        	// Read the IDData file
+        	try {
+               	FileReader idDataFile = new FileReader("idData.txt");
+        		BufferedReader fileReader = new BufferedReader(idDataFile);
+        		
+        		// Read every line of the file, putting everything into the IDData list.
+        		String line = fileReader.readLine();
+        		while (line != null) {
+        			IDData.add(line);
+        			line = fileReader.readLine();
+        		}	
+        		fileReader.close();
+        	} catch (IOException e) {
+        	}
+        	
+        	// Increment the old userID to get a new, unique userID.
+    		newUserID = Integer.parseInt(IDData.get(0));
+    		newUserID += 1;
+    		
+    		// Update the IDData list
+    		IDData.set(0, Integer.toString(newUserID));
+        	
+        	// Update the idData file with the new IDData list
+        	try {
+        		FileWriter idDataFile = new FileWriter("idData.txt");
+        		BufferedWriter fileWriter = new BufferedWriter(idDataFile);
+        		
+        		fileWriter.write(IDData.get(0) + "\n");
+        		fileWriter.write(IDData.get(1) + "\n");
+        		fileWriter.write(IDData.get(2) + "\n");
+
+        		fileWriter.close();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+            
+        	// Return the new userID and you're done.
+        	return newUserID;
+        }
+    } 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// idk
+
+/*
 // Import the IOException class to handle errors
 import java.io.*;
 import java.net.*;
@@ -85,7 +362,7 @@ public class Server {
 			    	//if the message type is logout, break?
 			    	/*if (msgFromClient.getType() == MsgType.Logout) {
 			    		break;
-			    	}*/
+			    	}
 			    	
 			    }
 			    
@@ -98,6 +375,7 @@ public class Server {
 			}
 	        
 		}
+
         //not finished
         public Message login(Message message) {
         	if (message.username+message.password == "adminbanker") {
@@ -153,7 +431,7 @@ public class Server {
 						objOutputStream.writeObject(message);
 						reader.close();
 						return;
-					}*/
+					}
 		}
         //this function reads all the customer objects, and returns them.
         public void getAllCustomersFromFile() throws IOException, ClassNotFoundException {
@@ -180,10 +458,6 @@ public class Server {
         	oos.close();
         }
 		
-			
-    }
-    
-    
 	
 	/*public Message doDeposit(Customer customer, List<String> depositData) {
 		Account acct = null;
@@ -300,7 +574,7 @@ public class Server {
 		String accountInfo = name + "," + newAccount.getAccountNumber() + "," + newAccout.getBalance();
 		return (new Message(MsgType.NewAccount, MsgStatus.Success, accountInfo));
 
-	}*/
+	}
 	
 	public Message removeCustomer(List<String> customerData) {
 		
@@ -317,7 +591,7 @@ public class Server {
 		
 		return (new Message(MsgType.RemoveAccount, MsgStatus.Success, "Account Closed"));
 		
-	}*/
+	}
 	
 	
 	public Message loggingOut(List<String> customerData) {
@@ -325,8 +599,9 @@ public class Server {
 		return (new Message(MsgType.Logout, MsgStatus.Success, "Logged out!"));
 		
 	}
-			
-			
-        	
-   
 }
+*/
+
+
+
+
