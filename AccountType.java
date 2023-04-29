@@ -1,5 +1,6 @@
 
 public enum AccountType {
 	Checkings,
-	Savings
+	Savings,
+	Business
 }
