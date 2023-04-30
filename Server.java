@@ -81,7 +81,11 @@ public class Server {
 		        	deposit(data2, customers);
 		        	writeCustomersToFile(customers);
 		        	*/
-		        	
+		        	/* withdraw test
+		        	List<String> data2 = List.of("2", "1", "25.25");
+		        	withdraw(data2, customers);
+		        	writeCustomersToFile(customers);
+		        	*/
 		        	System.out.println("Done");
 		        	
 		        }
@@ -214,7 +218,6 @@ public class Server {
         	customer.addAccount(account);
         }
         
-        /*
         // done
         public void deposit(List<String> data, Map<Integer, Customer> customers) {
         	int userID = Integer.parseInt(data.get(0));
@@ -227,7 +230,19 @@ public class Server {
         	int transactionID = getNewID(2);
         	account.deposit(amount, transactionID);	
         }
-        */
+        
+        // done
+        public void withdraw(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = Integer.parseInt(data.get(0));
+        	int accountID = Integer.parseInt(data.get(1));
+        	double amount = Double.parseDouble(data.get(2));
+        	
+        	Customer customer = customers.get(userID);
+        	Account account = customer.getAccount(accountID);
+        	
+        	int transactionID = getNewID(2);
+        	account.withdraw(amount, transactionID);	
+        }
         
         // done
         // To get a unique userID, the current userID is retrieved from a 
