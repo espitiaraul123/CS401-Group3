@@ -4,6 +4,11 @@ public class Message implements Serializable {
     protected MsgType type;
     protected MsgStatus status;
     protected String text;
+    //these variables are to send a new customer
+    public Customer newCustomer;
+    //these variables are to login
+    public String username;
+    public String password;
 
     public Message(){
         this.type = MsgType.Undefined;
@@ -16,7 +21,19 @@ public class Message implements Serializable {
         this.status = status;
         this.text = text;
     }
-
+    public void makeLoginMessage(String username, String password) {
+    	type = MsgType.Login;
+    	this.username = username;
+    	System.out.println("setting username to "+username);
+    	this.password = password;
+    	System.out.println("setting password to "+password);
+    	
+    }
+    public void makeNewCustomerMessage(String username, String password, String fullname) {
+    	type = MsgType.NewCustomer;
+    	newCustomer = new Customer(fullname, username, password);
+    	
+    }
     private void setType(MsgType type){
     	this.type = type;
     }
@@ -28,7 +45,7 @@ public class Message implements Serializable {
     public void setText(String text){
     	this.text = text;
     }
-
+    
     public MsgType getType(){
     	return type;
     }
