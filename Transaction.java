@@ -6,41 +6,47 @@ import java.util.Date;
 public class Transaction {
 	private int transactionID;
 	private double amount;
-	private TransactionType type;
-	private static int count = 0;
-	private static Date date = null;
+	private TransactionType transactionType;
+	private String date;
 
-	//private String name;
-
-	// Constructor to initialize transactionID, amount and type
-	public Transaction(double amount, TransactionType type) {
-		this.transactionID = count++;
+	// done
+	// Constructor
+	Transaction(int transactionID, double amount, TransactionType transactionType, String date) {
+		this.transactionID = transactionID;
 		this.amount = amount;
-		this.type = type;
-		this.date = new Date();
+		this.transactionType = transactionType;
+		this.date = date;
 	}
-
-	// getter gets date of transaction
-	public Date getDate() {
-		return date;
-	}
-
-
-	// Getter method to return transactionID
-	public int getId() {
+	
+	// Getters
+	public int getTransactionID() {
 		return transactionID;
 	}
-
-	// Getter method to return transaction amount
 	public double getAmount() {
 		return amount;
 	}
+	public TransactionType transactionType() {
+		return transactionType;
+	}
+	public String getDate() {
+		return date;
+	}
+	
+	// done
+	// toString()
+	// Used for reading and writing to the database(text file)
+	public String toString() {
+		String transactionAsString = "";
+		
+		transactionAsString = transactionAsString.concat(Integer.toString(transactionID) + ","
+													+ Double.toString(amount) + ","
+													+ transactionType.toString() + ","
+													+ date + "\n");
 
-	// Getter method to return transaction type
-	public TransactionType getType() {
-		return type;
+		return transactionAsString;
 	}
 
+	/* idk yet
 	// This method returns a string representation of the transaction
 	@Override
 	public String toString() {
@@ -62,9 +68,8 @@ public class Transaction {
 		// return a formatted string with transaction ID, type, and amount
 		//return String.format("%s,%d,%s,%.2f", strDate, transactionID, transactionType, amount);
 		return String.format("%d,%.2f,%s,%s", transactionID, amount, transactionType, strDate);
-
-
 	}
+	*/
 }
 
 
