@@ -71,11 +71,25 @@ public class Server {
 		        	createNewCustomer(newCustomerData, customers);
 		        	writeCustomersToFile(customers);
 		        	*/
+		        	
+		        	/* add account test
+		        	List<String> data = List.of("2", "Checking"); 
+		        	addAccount(data, customers);
+		        	*/
+		        	/* deposit test
+		        	List<String> data2 = List.of("2", "1", "200");
+		        	deposit(data2, customers);
+		        	writeCustomersToFile(customers);
+		        	*/
+		        	
+		        	System.out.println("Done");
+		        	
 		        }
 			} catch (Exception e) {
 			}
         }
         
+        // done
         public void writeCustomersToFile(Map<Integer, Customer> customers) {
         	try {
         		FileWriter customerDataFile = new FileWriter("customerData.txt");
@@ -92,6 +106,7 @@ public class Server {
         	}
         }
 
+        // done
         public void readCustomersFromFile(Map<Integer, Customer> customers) {
         	try {
         		// Open file that holds all the data for every customer.
@@ -134,7 +149,7 @@ public class Server {
         				// organize the data into variables (just for readability)
         				int accountID = Integer.parseInt(accountParts[0]);
         				double balance = Double.parseDouble(accountParts[1]);
-        				String accountType = accountParts[2];
+        				AccountType accountType = AccountType.valueOf(accountParts[2]);
         				int numTransactions = Integer.parseInt(accountParts[3]);
         				
         				// Get all the transactions the account has
@@ -148,7 +163,7 @@ public class Server {
         					// organize the data into variables (just for readability)
         					int transactionID = Integer.parseInt(transactionParts[0]);
         					double amount = Double.parseDouble(transactionParts[1]);
-        					String transactionType = transactionParts[2];
+        					TransactionType transactionType = TransactionType.valueOf(transactionParts[2]);
         					String date = transactionParts[3];
         					
         					// Create a new transaction object with this data
@@ -176,8 +191,9 @@ public class Server {
         	}
         }
         
+        // done
         public void createNewCustomer(List<String> data, Map<Integer, Customer> customers) {
-        	int userID = getNewUserID();
+        	int userID = getNewID(0);
         	int PIN = Integer.parseInt(data.get(0));
         	String name = data.get(1);
         	
@@ -185,15 +201,44 @@ public class Server {
         	customers.put(userID, customer);
         }
         
+        // done
+        public void addAccount(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = Integer.parseInt(data.get(0));
+        	Customer customer = customers.get(userID);
+        	
+        	int accountID = getNewID(1);
+        	AccountType accountType = AccountType.valueOf(data.get(1));
+        	
+        	Account account = new Account(accountID, accountType);
+        	
+        	customer.addAccount(account);
+        }
+        
+        /*
+        // done
+        public void deposit(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = Integer.parseInt(data.get(0));
+        	int accountID = Integer.parseInt(data.get(1));
+        	double amount = Double.parseDouble(data.get(2));
+        	
+        	Customer customer = customers.get(userID);
+        	Account account = customer.getAccount(accountID);
+        	
+        	int transactionID = getNewID(2);
+        	account.deposit(amount, transactionID);	
+        }
+        */
+        
+        // done
         // To get a unique userID, the current userID is retrieved from a 
         // text file, is incremented, and then stored back into the text file.
         // This function will get a unique userID, and then return it.
-        public int getNewUserID() {
+        public int getNewID(int idType) {
         	// IDData[0] holds largest userID
         	// IDData[0] holds largest accountID
         	// IDData[0] holds largest transactionID
     		List<String> IDData = new ArrayList<>();
-        	int newUserID;
+        	int newID;
     		
         	// Read the IDData file
         	try {
@@ -211,11 +256,11 @@ public class Server {
         	}
         	
         	// Increment the old userID to get a new, unique userID.
-    		newUserID = Integer.parseInt(IDData.get(0));
-    		newUserID += 1;
+    		newID = Integer.parseInt(IDData.get(idType));
+    		newID += 1;
     		
     		// Update the IDData list
-    		IDData.set(0, Integer.toString(newUserID));
+    		IDData.set(idType, Integer.toString(newID));
         	
         	// Update the idData file with the new IDData list
         	try {
@@ -232,7 +277,7 @@ public class Server {
         	}
             
         	// Return the new userID and you're done.
-        	return newUserID;
+        	return newID;
         }
     } 
 }
