@@ -86,6 +86,12 @@ public class Server {
 		        	withdraw(data2, customers);
 		        	writeCustomersToFile(customers);
 		        	*/
+		        	
+		        	/* verifyLogin tests
+		        	List<String> data = List.of("2", "222");
+		        	verifyLogin(data, customers);
+		        	*/
+		        	
 		        	System.out.println("Done");
 		        	
 		        }
@@ -242,6 +248,31 @@ public class Server {
         	
         	int transactionID = getNewID(2);
         	account.withdraw(amount, transactionID);	
+        }
+        
+        // done
+        public void verifyLogin(List<String> data, Map<Integer, Customer> customers) {
+        	boolean success = false;
+        	
+        	int userID = Integer.parseInt(data.get(0));
+        	int PIN = Integer.parseInt(data.get(1));
+        	
+        	if (customers.containsKey(userID)) {
+            	if (customers.get(userID).getPIN() == PIN) {
+            		success = true;
+            		
+					try {
+				  	    FileWriter fw;
+						fw = new FileWriter("activeUsers.txt", true);
+		          	    BufferedWriter bw = new BufferedWriter(fw);
+	            	    bw.write(Integer.toString(userID));
+	            	    bw.newLine();
+	            	    bw.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+            	}
+        	}
         }
         
         // done
