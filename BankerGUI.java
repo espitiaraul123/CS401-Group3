@@ -13,7 +13,7 @@ import javax.swing.*;
 public class BankerGUI {
     private JFrame frame = new JFrame("Banker GUI");
     private JButton createCustomerButton, createAccountButton, removeButton, depositButton, withdrawButton, transferButton, transactionButton, logoutButton;
-    private JButton logIntoCustomerAccountButton;
+    private JButton logIntoCustomerAccountButton, viewAllAccountsButton;
     private JPanel buttonPanel, labelPanel;
     private JLabel nameLabel, balanceLabel;
     private JList<String> customerList;
@@ -25,7 +25,7 @@ public class BankerGUI {
     public BankerGUI() throws UnknownHostException, IOException {
         //Set a custom Frame size 
     	Socket socket = new Socket("localhost", 1234);
-        frame.setSize(1000, 500);
+    	frame.setSize(1000, 500);
         
         //Create Panel
         buttonPanel = new JPanel(new GridLayout(5, 1, 5, 5));
@@ -40,12 +40,14 @@ public class BankerGUI {
         transferButton = new JButton("Transfer");
         transactionButton = new JButton("View Transactions");
         logoutButton = new JButton("Logout");
+        viewAllAccountsButton = new JButton("View all accounts");
 
         //Add Buttons to Panel
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0,50,0,0));
         buttonPanel.add(createCustomerButton);
         buttonPanel.add(createAccountButton);
         buttonPanel.add(logIntoCustomerAccountButton);
+        buttonPanel.add(viewAllAccountsButton);
         buttonPanel.add(removeButton);
         buttonPanel.add(depositButton);
         buttonPanel.add(withdrawButton);
@@ -63,6 +65,8 @@ public class BankerGUI {
         transferButton.setPreferredSize(new Dimension(200, 60));
         transactionButton.setPreferredSize(new Dimension(200, 60));
         logoutButton.setPreferredSize(new Dimension(200, 60));
+        viewAllAccountsButton.setPreferredSize(new Dimension(200, 60));
+
 
         //Add Label and button panel
         labelPanel = new JPanel(new GridLayout(2,1));
@@ -94,6 +98,7 @@ public class BankerGUI {
         createCustomerButton.addActionListener(new ActionListener() {
         	@Override
 			public void actionPerformed(ActionEvent e) {
+        		System.out.println("creating new customer");
 				// TODO Auto-generated method stub
 				///build a new Customer message to send to the server
 	        	Message newMessage = new Message();
@@ -109,7 +114,7 @@ public class BankerGUI {
 					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
-			        
+			        System.out.println("login message fetched back");
 			        
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -131,10 +136,52 @@ public class BankerGUI {
         	
         	
         });
-        
+        logIntoCustomerAccountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JOptionPane.showMessageDialog(frame, "logging into customer profile");
+				
+                // Code to execute when createButton is clicked
+            	
+            	String username = JOptionPane.showInputDialog(frame, "What is the username?");
+            	String password = JOptionPane.showInputDialog(frame, "What is the password?");
+            	Message newMessage = new Message();
+            	newMessage.makeLoginMessage(username, password);
+            	//send the message to the server
+            	try {
+            		
+					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
+					oos.writeObject(newMessage);
+					newMessage = (Message)ois.readObject();
+					JOptionPane.showMessageDialog(frame,"got message");
+					
+			        
+			        
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	// create a ObjectInputStream so we can read data from it.
+		        //passing message to server
+            	if (newMessage.status == MsgStatus.Success) {
+		        	JOptionPane.showMessageDialog(frame, "Successfully logged in and fetched customer");
+		        	nameLabel.setText(newMessage.newCustomer.getName());
+		        	customer = newMessage.newCustomer;
+		        	
+		        }
+		        else {
+		        	JOptionPane.showMessageDialog(frame, "Customer login was unsuccessful");
+		        }
+           	}
+        });
         createAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	System.out.println("creating a new account");
                 // Code to execute when createButton is clicked
                 String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
                 String initialDeposit = JOptionPane.showInputDialog(frame, "Initial Deposit: ");
@@ -170,6 +217,9 @@ public class BankerGUI {
             	
             }
         });
+        
+        
+        
 
         /*depositButton.addActionListener(new ActionListener() {
             @Override
