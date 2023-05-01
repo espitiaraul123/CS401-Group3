@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Customer {
+public class Customer implements Serializable{
 	
 	private int userID;
 	private int PIN;

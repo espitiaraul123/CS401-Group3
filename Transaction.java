@@ -1,9 +1,10 @@
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Date;
 
 
-public class Transaction {
+public class Transaction implements Serializable{
 	private int transactionID;
 	private double amount;
 	private TransactionType transactionType;
