@@ -8,9 +8,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class ATM {
-	public static void main (String[] args) {		
-		Account account = new Account("Sediq Aziz", AccountType.Checkings, 12345);
-		
+	private Customer customer;
+	private Account checkingAccount;
+	private Account savingsAccount;
+	private Account businessAccount;
+	
+	public ATM (Customer newCustomer) {	
+		customer = newCustomer;
+		//use loop to find an
 		//Create GUI Components
 		JTextField accountNumberField = new JTextField(10);
 		JTextField transferAmountField = new JTextField(10);
@@ -32,7 +37,8 @@ public class ATM {
 
 		
 		//Add Action Listeners to the buttons
-		depositButton.addActionListener(e-> {
+		
+		/*depositButton.addActionListener(e-> {
 			JTextField depositAmountField = new JTextField(10);
 			JPanel depositPanel = new JPanel();
 			depositPanel.add(new JLabel("Enter amount to deposit:"));
@@ -51,9 +57,9 @@ public class ATM {
 			double amount = Double.parseDouble(depositAmountField.getText());
 			account.deposit(amount, TransactionType.DEPOSIT);
 			balanceLabel.setText("Balance: " + account.getBalance());
-		});
+		});*/
 		
-		withdrawButton.addActionListener(e -> {
+		/*withdrawButton.addActionListener(e -> {
 		    JTextField withdrawAmountField = new JTextField(10);
 		    JPanel withdrawPanel = new JPanel();
 		    withdrawPanel.add(new JLabel("Enter amount to withdraw:"));
@@ -69,7 +75,7 @@ public class ATM {
 		            JOptionPane.showMessageDialog(null, "Invalid amount entered!", "Error", JOptionPane.ERROR_MESSAGE);
 		        }
 		    }
-		});
+		});*/
 
 		
 		
