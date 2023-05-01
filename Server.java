@@ -92,6 +92,17 @@ public class Server {
 		        	verifyLogin(data, customers);
 		        	*/
 		        	
+		        	/* removeCustomer test
+		        	List<String> data = List.of("2");
+		        	Message returnMessage = removeCustomer(data, customers);
+		        	writeCustomersToFile(customers);
+		        	*/
+		        	
+		        	/* removeAccount test */
+		        	List<String> data = List.of("324", "90");
+		        	removeAccount(data, customers);
+		        	writeCustomersToFile(customers);
+		        	
 		        	System.out.println("Done");
 		        	
 		        }
@@ -212,6 +223,16 @@ public class Server {
         }
         
         // done
+        public Message removeCustomer(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = Integer.parseInt(data.get(0));
+
+        	customers.remove(userID);
+        	
+        	Message message = new Message(MsgType.RemoveCustomer, MsgStatus.Success, "");
+        	return message;
+        }
+        
+        // done
         public void addAccount(List<String> data, Map<Integer, Customer> customers) {
         	int userID = Integer.parseInt(data.get(0));
         	Customer customer = customers.get(userID);
@@ -222,6 +243,20 @@ public class Server {
         	Account account = new Account(accountID, accountType);
         	
         	customer.addAccount(account);
+        }
+        
+        // done
+        public Message removeAccount(List<String> data, Map<Integer, Customer> customers) {
+        	int userID = Integer.parseInt(data.get(0));
+        	int accountID = Integer.parseInt(data.get(1));
+        	
+        	Customer customer = customers.get(userID);
+        	Account account = customer.getAccount(accountID);
+        	
+        	customer.removeAccount(account);
+        	
+        	Message message = new Message(MsgType.RemoveAccount, MsgStatus.Success, "");
+        	return message;
         }
         
         // done
@@ -251,7 +286,7 @@ public class Server {
         }
         
         // done
-        public void verifyLogin(List<String> data, Map<Integer, Customer> customers) {
+        public Message verifyLogin(List<String> data, Map<Integer, Customer> customers) {
         	boolean success = false;
         	
         	int userID = Integer.parseInt(data.get(0));
@@ -273,6 +308,9 @@ public class Server {
 					}
             	}
         	}
+        	
+        	Message message = new Message(MsgType.Login, MsgStatus.Success, "");
+        	return message;
         }
         
         // done
