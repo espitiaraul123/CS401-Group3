@@ -12,8 +12,8 @@ public class Account implements Serializable{
 	
 	// done
 	// Constructor
-	Account(int accountID, AccountType accountType) {
-		this.accountID = accountID;
+	Account(AccountType accountType) {
+		//this.accountID = accountID;
 		this.balance = 0.00;
 		this.accountType = accountType;
 		this.numTransactions = 0;
@@ -87,7 +87,7 @@ public class Account implements Serializable{
 	// done
 	public void deposit(double amount, int transactionID) {
 		balance += amount;
-		
+		System.out.println("new balance is "+balance);
 		Transaction transaction = new Transaction(transactionID, amount, TransactionType.DEPOSIT, java.time.LocalDate.now().toString());
 		transactions.add(transaction);
 		numTransactions++;
