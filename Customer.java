@@ -100,6 +100,13 @@ public class Customer {
 	}
 	
 	// done
+	// Removes an account
+	public void removeAccount(Account account) {
+		accounts.remove(account);
+		numAccounts--;
+	}
+	
+	// done
 	// Add an account to the customer (used for testing)
 	public void addAccount(Account newAccount) {
 		numAccounts++;
