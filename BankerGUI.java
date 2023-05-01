@@ -2,52 +2,47 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
 
 public class BankerGUI {
     private JFrame frame = new JFrame("Banker GUI");
-    private JButton createCustomerButton, createAccountButton, removeButton, depositButton, withdrawButton, transferButton, transactionButton, logoutButton;
-    private JButton logIntoCustomerAccountButton, viewAllAccountsButton;
+    private JButton createButton, removeButton, depositButton, withdrawButton, transferButton, transactionButton, logoutButton;
     private JPanel buttonPanel, labelPanel;
     private JLabel nameLabel, balanceLabel;
     private JList<String> customerList;
-    
-    //current customer being looked at
     private Customer customer;
-    
-    
-    public BankerGUI() throws UnknownHostException, IOException {
-        //Set a custom Frame size 
-    	Socket socket = new Socket("localhost", 1234);
-    	frame.setSize(1000, 500);
-        
+    private Account account;
+
+    public BankerGUI() {
+
+    	//Set a custom Frame size
+        frame.setSize(1000, 500);
+
         //Create Panel
         buttonPanel = new JPanel(new GridLayout(5, 1, 5, 5));
 
         //Create Buttons
-        createCustomerButton = new JButton("Create new customer");
-        createAccountButton = new JButton("Create Account");
-        logIntoCustomerAccountButton = new JButton("Log into customer Account");
+        createButton = new JButton("Create Account");
         removeButton = new JButton("Remove Account");
         depositButton = new JButton("Deposit");
         withdrawButton = new JButton("Withdraw");
         transferButton = new JButton("Transfer");
         transactionButton = new JButton("View Transactions");
         logoutButton = new JButton("Logout");
-        viewAllAccountsButton = new JButton("View all accounts");
 
         //Add Buttons to Panel
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0,50,0,0));
-        buttonPanel.add(createCustomerButton);
-        buttonPanel.add(createAccountButton);
-        buttonPanel.add(logIntoCustomerAccountButton);
-        buttonPanel.add(viewAllAccountsButton);
+        buttonPanel.add(createButton);
         buttonPanel.add(removeButton);
         buttonPanel.add(depositButton);
         buttonPanel.add(withdrawButton);
@@ -56,29 +51,23 @@ public class BankerGUI {
         buttonPanel.add(logoutButton);
 
         //Set dimension of the button size
-        createCustomerButton.setPreferredSize(new Dimension(200, 60));
-        createAccountButton.setPreferredSize(new Dimension (200,60));
-        logIntoCustomerAccountButton.setPreferredSize(new Dimension (200, 60));
+        createButton.setPreferredSize(new Dimension(200, 60));
         removeButton.setPreferredSize(new Dimension(200, 60));
         depositButton.setPreferredSize(new Dimension(200, 60));
         withdrawButton.setPreferredSize(new Dimension(200, 60));
         transferButton.setPreferredSize(new Dimension(200, 60));
         transactionButton.setPreferredSize(new Dimension(200, 60));
         logoutButton.setPreferredSize(new Dimension(200, 60));
-        viewAllAccountsButton.setPreferredSize(new Dimension(200, 60));
-
 
         //Add Label and button panel
         labelPanel = new JPanel(new GridLayout(2,1));
-        nameLabel = new JLabel("Customer Name: ");
         balanceLabel = new JLabel("Balance: $");
 
         //Add JList for customers
-        String[] accounts = {"Account 1", "Account 2", "Account 3", "Account 4", "Account 5"};
-        customerList = new JList<String>(accounts);
+        DefaultListModel <String> listModel = new DefaultListModel<>();
+        customerList = new JList<>(listModel);
 
         //Add components to label panel
-        labelPanel.add(nameLabel);
         labelPanel.add(balanceLabel);
         labelPanel.add(new JScrollPane(customerList));
 
@@ -87,147 +76,56 @@ public class BankerGUI {
         frame.add(buttonPanel);
         frame.setVisible(true);
         frame.setLayout(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         //Set bounds for label panel and button panel
         labelPanel.setBounds(50, 50, 200, 300);
         buttonPanel.setBounds(300, 50, 500, 500);
-        
-        //Account account = new Account("John Doe", 12345, AccountType.Checkings);
-        
-        createCustomerButton.addActionListener(new ActionListener() {
-        	@Override
-			public void actionPerformed(ActionEvent e) {
-        		System.out.println("creating new customer");
-				// TODO Auto-generated method stub
-				///build a new Customer message to send to the server
-	        	Message newMessage = new Message();
-	        	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
-	        	String username = JOptionPane.showInputDialog(frame, "please create a username");
-	        	String password = JOptionPane.showInputDialog(frame, "Please enter your password");
-	        	newMessage.makeNewCustomerMessage(username, password, fullname);
-	        	
-	        	//send this to the server
-	        	// create a ObjectOutputStream so we can write data from it.
-		        try {
-					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
-					oos.writeObject(newMessage);
-					newMessage = (Message)ois.readObject();
-			        System.out.println("login message fetched back");
-			        
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-		        // create a ObjectInputStream so we can read data from it.
-		        //passing message to server
-		        if (newMessage.status == MsgStatus.Success) {
-		        	JOptionPane.showMessageDialog(frame, "Successfully created and written new customer");
-		        }
-		        else {
-		        	JOptionPane.showMessageDialog(frame, "Customer creation was unsuccessful");
-		        }
-		        
-			}
-        	
-        	
-        });
-        logIntoCustomerAccountButton.addActionListener(new ActionListener() {
+
+
+
+
+        createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	JOptionPane.showMessageDialog(frame, "logging into customer profile");
-				
-                // Code to execute when createButton is clicked
-            	
-            	String username = JOptionPane.showInputDialog(frame, "What is the username?");
-            	String password = JOptionPane.showInputDialog(frame, "What is the password?");
-            	Message newMessage = new Message();
-            	newMessage.makeLoginMessage(username, password);
-            	//send the message to the server
-            	try {
-            		
-					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
-					oos.writeObject(newMessage);
-					newMessage = (Message)ois.readObject();
-					JOptionPane.showMessageDialog(frame,"got message");
-					
-			        
-			        
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-            	// create a ObjectInputStream so we can read data from it.
-		        //passing message to server
-            	if (newMessage.status == MsgStatus.Success) {
-		        	JOptionPane.showMessageDialog(frame, "Successfully logged in and fetched customer");
-		        	nameLabel.setText(newMessage.newCustomer.getName());
-		        	customer = newMessage.newCustomer;
-		        	
-		        }
-		        else {
-		        	JOptionPane.showMessageDialog(frame, "Customer login was unsuccessful");
-		        }
-           	}
-        });
-        createAccountButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	System.out.println("creating a new account");
                 // Code to execute when createButton is clicked
                 String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
-                String initialDeposit = JOptionPane.showInputDialog(frame, "Initial Deposit: ");
-                Customer customer = null;
-                if(accountType.equals("Checkings")) {
-                	AccountType type = AccountType.Checkings;
-                }else if(accountType.equals("Savings")) {
-                	AccountType type = AccountType.Savings;
-                }
+                Double initialDeposit = Double.parseDouble(JOptionPane.showInputDialog(frame, "Initial Deposit: "));
                 
-                int foo = Integer.parseInt(initialDeposit);
-                if (accountType == "checking" || accountType == "checkings") {
-                	customer.addAccount(foo, AccountType.Checkings);
-                    
-                }
-                else {
-                	customer.addAccount(foo,AccountType.Savings);
-                }
-                balanceLabel.setText("New Account Added!");
+                AccountType type;
 
+                if(accountType.equals("Checkings")) {
+                	type = AccountType.Checkings;
+                } else if(accountType.equals("Savings")) {
+                	type = AccountType.Savings;
+                } else {
+                	JOptionPane.showMessageDialog(frame, "Invalid Account Type");
+                	return;
+                }
+                Account newAccount = new Account(type, initialDeposit);
+                customer.addAccount(newAccount);
+                balanceLabel.setText("New " + accountType + " Account added.");
             }
         });
-        
+
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to execute when createButton is clicked
-            	
             	String acctID = JOptionPane.showInputDialog(frame, "What is the ID number of the account to close:");
-            	int accountID = Integer.parseInt(acctID);
-            	customer.closeAccount(accountID);
+            	customer.closeAccount(acctID);
             	balanceLabel.setText("Account was closed!");
-            	
             }
         });
-        
-        
-        
 
-        /*depositButton.addActionListener(new ActionListener() {
+        depositButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String amountText = JOptionPane.showInputDialog(frame, "Enter amount to deposit:$");
-                double amount = Double.parseDouble(amountText);
-                
-                account.deposit(amount);
+            	String accountText = JOptionPane.showInputDialog(frame, "To which account would you like to deposit?");
+            	String amountText = JOptionPane.showInputDialog(frame, "Enter amount to deposit");
+            	int accountId = Integer.parseInt(accountText);
+            	double amount = Double.parseDouble(amountText);
+                account.deposit(amount, accountId);
                 balanceLabel.setText("Balance: $" + account.getBalance());
             }
         });
@@ -235,48 +133,54 @@ public class BankerGUI {
         withdrawButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String amountText = JOptionPane.showInputDialog(frame, "Enter the amount to withdraw:$ ");
+            	String accountText = JOptionPane.showInputDialog(frame, "Which account would you like to withdraw from?");
+                String amountText = JOptionPane.showInputDialog(frame, "Enter the amount to withdraw");
+                int accountId = Integer.parseInt(accountText);
                 double amount = Double.parseDouble(amountText);
-                account.withdraw(amount);
+                account.withdraw(amount, accountId);
                 balanceLabel.setText("Balance:$ " + account.getBalance());
             }
-        });*/
+        });
 
         transferButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
             	//Get the selected account from the JList
             	String selectAccount = customerList.getSelectedValue();
-            	
-            	//Ask the user how much they want to transfer, to what account they want to put funds into, 
+
+            	//Ask the user how much they want to transfer, to what account they want to put funds into,
                 String amountText = JOptionPane.showInputDialog(frame, "Enter the amount to transfer: ");
                 double amount = Double.parseDouble(amountText);
                 String accIDText = JOptionPane.showInputDialog(frame, "Which account would you like to add funds to; ");
                 int accID = Integer.parseInt(accIDText);
-                
-                
+
+
             }
         });
 
         transactionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Code to execute when createButton is clicked
+            	// Code to execute when transactionButton is clicked
+            	String account1 = JOptionPane.showInputDialog(frame, "Which account would you to transfer funds from");
+            	String account2 = JOptionPane.showInputDialog(frame,"Which account would you like to transfer funds to");
+            	//
+            	int account1Text = Integer.parseInt(account1);
+            	int account2Text = Integer.parseInt(account2);
             }
         });
 
         logoutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame, "Goodbye, We hope to see you again!");
                 System.exit(0);	// End program
              }
           });
-
-
     }
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         //Create instance of BankerGUI
         new BankerGUI();
-    }*/
+    }
 }
