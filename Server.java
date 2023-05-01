@@ -55,9 +55,12 @@ public class Server {
 		        // create a ObjectOutputStream so we can write data from it.
 		        // ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 		        // create a ObjectInputStream so we can read data from it.
-		        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-
-		        while((message = (Message)objectInputStream.readObject()) != null) {
+				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+				while((message = (Message)objectInputStream.readObject()) != null) {
+					message.status = MsgStatus.Success;
+					objectOutputStream.writeObject(message);
+		        
 		        	// do stuff
 		        	/* Tests
 		        	System.out.println("POOP");
