@@ -34,7 +34,7 @@ public class BankerGUI extends JFrame implements MouseListener{
         //Set a custom Frame size 
     	Socket socket = new Socket("localhost", 1234);
     	frame.setSize(1000, 500);
-        
+        String[] data;
         //Create Panel
         buttonPanel = new JPanel(new GridLayout(5, 1, 5, 5));
 
@@ -160,11 +160,12 @@ public class BankerGUI extends JFrame implements MouseListener{
         		System.out.println("creating new customer");
 				// TODO Auto-generated method stub
 				///build a new Customer message to send to the server
-	        	Message newMessage = new Message();
-	        	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
-	        	int userID = Integer.parseInt(JOptionPane.showInputDialog(frame, "please create a userID"));
-	        	int pin = Integer.parseInt(JOptionPane.showInputDialog(frame, "Please enter your pin"));
-	        	newMessage.makeNewCustomerMessage(userID, pin, fullname);
+        		String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
+	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
+	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
+	        	String[] arrayofStrings = {userID, pin, fullname};
+	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayofStrings);
+	        	
 	        	
 	        	//send this to the server
 	        	// create a ObjectOutputStream so we can write data from it.
@@ -202,10 +203,11 @@ public class BankerGUI extends JFrame implements MouseListener{
 				
                 // Code to execute when createButton is clicked
             	
-            	Message newMessage = new Message();
-	        	int userID = Integer.parseInt(JOptionPane.showInputDialog(frame, "please enter a userID"));
-	        	int pin = Integer.parseInt(JOptionPane.showInputDialog(frame, "Please enter your pin"));
-	        	newMessage.makeLoginMessage(userID, pin);
+            	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
+	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
+	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
+	        	String[] arrayofStrings = {userID, pin, fullname};
+	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayofStrings);
 	        	
             	//send the message to the server
             	try {
@@ -229,6 +231,7 @@ public class BankerGUI extends JFrame implements MouseListener{
 		        //passing message to server
             	if (newMessage.status == MsgStatus.Success) {
 		        	JOptionPane.showMessageDialog(frame, "Successfully logged in and fetched customer");
+		        	
 		        	nameLabel.setText(newMessage.newCustomer.getName());
 		        	customer = newMessage.newCustomer;
 		        	///start the AtM for the customer
