@@ -32,11 +32,7 @@ public class Message implements Serializable {
     	System.out.println("setting password to "+password);
     	
     }
-    public void makeNewCustomerMessage(String username, String password, String fullname) {
-    	type = MsgType.NewCustomer;
-    	newCustomer = new Customer(fullname, username, password);
-    	
-    }
+    
     private void setType(MsgType type){
     	this.type = type;
     }
