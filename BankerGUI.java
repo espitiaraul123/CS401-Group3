@@ -39,6 +39,10 @@ public class BankerGUI extends JFrame implements MouseListener{
     int balanceOfChecking;
     int balanceOfSavings;
     int balanceOfBusiness;
+    List <Account> allAccounts;
+    Account checkingAccount;
+    Account savingsAccount;
+    Account businessAccount;
     
     
     public BankerGUI() throws UnknownHostException, IOException {
@@ -179,7 +183,7 @@ public class BankerGUI extends JFrame implements MouseListener{
 	        	arrayOfStrings.add(userID);
 	        	arrayOfStrings.add(pin);
 	        	
-	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayOfStrings);
+	        	Message newMessage = new Message(MsgType.NewCustomer, MsgStatus.Undefined,arrayOfStrings);
 	        	JOptionPane.showMessageDialog(frame, "created message");
 				
 	        	
@@ -227,12 +231,15 @@ public class BankerGUI extends JFrame implements MouseListener{
             	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
 	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
 	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
-	        	list<String> arrayofStrings = {userID, pin, fullname};
-	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayofStrings);
+	        	List<String> arrayOfStrings = new ArrayList<String>();
+	        	arrayOfStrings.add(fullname);
+	        	arrayOfStrings.add(userID);
+	        	arrayOfStrings.add(pin);
+	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayOfStrings);
 	        	
             	//send the message to the server
             	try {
-            		
+            		JOptionPane.showMessageDialog(frame, "sending message");
 					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					oos.writeObject(newMessage);
@@ -262,30 +269,29 @@ public class BankerGUI extends JFrame implements MouseListener{
     int balanceOfSavings;
     int balanceOfBusiness;
     */
-		        	fullname = newMessage.data[0];
-		        	numOfAccounts = Integer.parseInt(data[1]);
-		        	if (newMessage.data[2].equals("true")) {
-		        		checkingAccountExists = true;
+		        	fullname = newMessage.attachedCustomer.getName();
+		        	numOfAccounts = newMessage.attachedCustomer.getNumAccounts();
+		        	//use a loop to match the appropriate account to the variable
+		        	for (Account acc:newMessage.attachedCustomer.getAccounts()) {
+		        		if (acc.getAccountType() == AccountType.Checking) {
+		        			checkingAccount = acc;
+		        			checkingAccountExists = true;
+		        		}
+		        		else if (acc.getAccountType() == AccountType.Savings) {
+		        			savingsAccount = acc;
+		        			savingsAccountExists = true;
+		        		}
+		        		else if (acc.getAccountType() == AccountType.Business) {
+		        			businessAccount = acc;
+		        			businessAccountExists = true;
+		        		}
 		        	}
-		        	else {
-		        		checkingAccountExists = false;
-		        	}
-		        	if (newMessage.data[3].equals("true")) {
-		        		savingsAccountExists = true;
-		        	}
-		        	else {
-		        		savingsAccountExists = false;
-		        	}
-		        	if (newMessage.data[3].equals("true")) {
-		        		businessAccountExists = true;
-		        	}
-		        	else {
-		        		businessAccountExists = false;
-		        	}
+		        	
+		        	
 		        	
 		        	//initialize data
 		        	 
-		        	nameLabel.setText(newMessage.data[0]);
+		        	nameLabel.setText(fullname+"'s profile");
 		        	///start the AtM for the customer
 		        	//ATM atm = new ATM(customer);
 		        	

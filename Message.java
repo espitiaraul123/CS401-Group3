@@ -5,6 +5,7 @@ public class Message implements Serializable {
     protected MsgType type;
     protected MsgStatus status;
     protected List<String> data;
+    public Customer attachedCustomer;
     
     public Message(){
         this.type = MsgType.Undefined;

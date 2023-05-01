@@ -58,9 +58,7 @@ public class Server {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 				while((message = (Message)objectInputStream.readObject()) != null) {
-					message.status = MsgStatus.Success;
-					objectOutputStream.writeObject(message);
-		        
+					
 		        	// do stuff
 		        	/* Tests
 		        	System.out.println("POOP");
@@ -90,10 +88,14 @@ public class Server {
 		        	writeCustomersToFile(customers);
 		        	*/
 		        	
-		        	/* verifyLogin tests
-		        	List<String> data = List.of("2", "222");
-		        	verifyLogin(data, customers);
-		        	*/
+		        	// verifyLogin tests
+					if (message.getType()==MsgType.Login) {
+						message = verifyLogin(message.data,customers);
+						//send the message object with the customer back to the gui
+						objectOutputStream.writeObject(message);
+					}
+		        	
+		        	
 		        	
 		        	/* removeCustomer test
 		        	List<String> data = List.of("2");
@@ -102,9 +104,9 @@ public class Server {
 		        	*/
 		        	
 		        	/* removeAccount test */
-		        	List<String> data = List.of("324", "90");
+		        	/*List<String> data = List.of("324", "90");
 		        	removeAccount(data, customers);
-		        	writeCustomersToFile(customers);
+		        	writeCustomersToFile(customers);*/
 		        	
 		        	System.out.println("Done");
 		        	
@@ -136,7 +138,7 @@ public class Server {
         		// Open file that holds all the data for every customer.
         		// Example of file structure:
         		// customer 1
-        		// account 1
+        		// account 3
         		// transaction 1
         		// transaction 2
         		// transaction 3
@@ -149,7 +151,6 @@ public class Server {
         		// Each piece of data is separated by a comma.
         		FileReader customerDataFile = new FileReader("customerData.txt");
         		BufferedReader fileReader = new BufferedReader(customerDataFile);
-        		
         		// Read every line of the file, while organizing everything to a customer object
         		String line = fileReader.readLine();
         		while (line != null) {
@@ -213,6 +214,7 @@ public class Server {
         	} catch (IOException e) {
         		e.printStackTrace();
         	}
+        	
         }
         
         // done
@@ -291,14 +293,21 @@ public class Server {
         // done
         public Message verifyLogin(List<String> data, Map<Integer, Customer> customers) {
         	boolean success = false;
-        	
-        	int userID = Integer.parseInt(data.get(0));
-        	int PIN = Integer.parseInt(data.get(1));
+        	int userID = Integer.parseInt(data.get(1));
+        	int PIN = Integer.parseInt(data.get(2));
+        	Customer newCustomer = null;
+        	List<String> oof = null;
+        	Message message = new Message(MsgType.Login, MsgStatus.Failure, oof);
         	
         	if (customers.containsKey(userID)) {
             	if (customers.get(userID).getPIN() == PIN) {
             		success = true;
-            		
+            		//set the new customer to the current customer if it's correct
+            		newCustomer = customers.get(userID);
+            		///attach this customer to the message
+            		message.setStatus(MsgStatus.Success);
+            		message.attachedCustomer = newCustomer;
+                	
 					try {
 				  	    FileWriter fw;
 						fw = new FileWriter("activeUsers.txt", true);
@@ -311,8 +320,8 @@ public class Server {
 					}
             	}
         	}
-        	
-        	Message message = new Message(MsgType.Login, MsgStatus.Success, "");
+        	//System.out.println("returning message");
+        	//attach the right object
         	return message;
         }
         
