@@ -9,17 +9,20 @@ public class Message implements Serializable {
     //these variables are to login
     public String username;
     public String password;
-
+    public String[] data;
     public Message(){
         this.type = MsgType.Undefined;
         this.status = MsgStatus.Undefined;
         this.text = "Undefined";
     }
 
-    public Message(MsgType type, MsgStatus status, String text){
+    public Message(MsgType type, MsgStatus status, String[] text){
         this.type = type;
         this.status = status;
-        this.text = text;
+        this.data = text;
+    }
+    public String[] getData() {
+    	return data;
     }
     public void makeLoginMessage(String username, String password) {
     	type = MsgType.Login;
