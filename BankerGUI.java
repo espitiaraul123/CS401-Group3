@@ -23,33 +23,38 @@ public class BankerGUI extends JFrame implements MouseListener{
 	private static final long serialVersionUID = 1L;
 	private JFrame frame = new JFrame("Banker GUI");
     private JButton createCustomerButton, createAccountButton, removeButton, depositButton, withdrawButton, transferButton, transactionButton, logoutButton;
-    private JButton logIntoCustomerAccountButton, viewAllAccountsButton;
+    private JButton logIntoCustomerAccountButton, viewAllAccountsButton, viewCheckingAccountBalanceButton, viewSavingsAccountBalanceButton, viewBusinessAccountBalanceButton;
     private JPanel buttonPanel, labelPanel;
     private JLabel nameLabel, balanceLabel;
     private JList<String> customerList;
     
     //current customer being looked at
-    private Customer customer;
+    Customer customer;
     String[] data;
     String fullname;
     int numOfAccounts;
     boolean checkingAccountExists;
     boolean savingsAccountExists;
     boolean businessAccountExists;
-    int balanceOfChecking;
-    int balanceOfSavings;
-    int balanceOfBusiness;
+    double balanceOfChecking;
+    double balanceOfSavings;
+    double balanceOfBusiness;
     List <Account> allAccounts;
     Account checkingAccount;
     Account savingsAccount;
     Account businessAccount;
     
     
+    
     public BankerGUI() throws UnknownHostException, IOException {
         //Set a custom Frame size 
     	Socket socket = new Socket("localhost", 1234);
     	frame.setSize(1000, 500);
-    	
+    	ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+		//JOptionPane.showMessageDialog(frame, "sending message to server");
+		
+		ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
+		
         //Create Panel
         buttonPanel = new JPanel(new GridLayout(5, 1, 5, 5));
 
@@ -57,6 +62,10 @@ public class BankerGUI extends JFrame implements MouseListener{
         createCustomerButton = new JButton("Create new customer");
         createAccountButton = new JButton("Create Account");
         logIntoCustomerAccountButton = new JButton("Log into customer Account");
+        viewCheckingAccountBalanceButton = new JButton("View checking account balance");
+        viewSavingsAccountBalanceButton = new JButton("View savings account balance");
+        viewBusinessAccountBalanceButton = new JButton("View business account balance");
+        
         removeButton = new JButton("Remove Account");
         depositButton = new JButton("Deposit");
         withdrawButton = new JButton("Withdraw");
@@ -70,7 +79,10 @@ public class BankerGUI extends JFrame implements MouseListener{
         buttonPanel.add(createCustomerButton);
         buttonPanel.add(createAccountButton);
         buttonPanel.add(logIntoCustomerAccountButton);
-        buttonPanel.add(viewAllAccountsButton);
+        buttonPanel.add(viewCheckingAccountBalanceButton);
+        buttonPanel.add(viewSavingsAccountBalanceButton);
+        buttonPanel.add(viewBusinessAccountBalanceButton);
+        
         buttonPanel.add(removeButton);
         buttonPanel.add(depositButton);
         buttonPanel.add(withdrawButton);
@@ -82,6 +94,10 @@ public class BankerGUI extends JFrame implements MouseListener{
         createCustomerButton.setPreferredSize(new Dimension(200, 60));
         createAccountButton.setPreferredSize(new Dimension (200,60));
         logIntoCustomerAccountButton.setPreferredSize(new Dimension (200, 60));
+        viewCheckingAccountBalanceButton.setPreferredSize(new Dimension(200, 60));
+        viewSavingsAccountBalanceButton.setPreferredSize(new Dimension(200, 60));
+        viewBusinessAccountBalanceButton.setPreferredSize(new Dimension(200, 60));
+        
         removeButton.setPreferredSize(new Dimension(200, 60));
         depositButton.setPreferredSize(new Dimension(200, 60));
         withdrawButton.setPreferredSize(new Dimension(200, 60));
@@ -169,6 +185,51 @@ public class BankerGUI extends JFrame implements MouseListener{
         		}
         	}
         });*/
+        viewCheckingAccountBalanceButton.addActionListener(new ActionListener () {
+        	
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (checkingAccountExists != true) {
+        			JOptionPane.showMessageDialog(frame, "This customer has not made a checking accout");
+        			
+        		}
+        		else {
+        			JOptionPane.showMessageDialog(frame, "Checking account balance is $"+checkingAccount.getBalance());
+        		}
+			}
+        });
+        viewSavingsAccountBalanceButton.addActionListener(new ActionListener () {
+        	
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (savingsAccountExists != true) {
+        			JOptionPane.showMessageDialog(frame, "This customer has not made a savings accout");
+        			
+        		}
+        		else {
+        			JOptionPane.showMessageDialog(frame, "savings account balance is $"+savingsAccount.getBalance());
+        		}
+			}
+        });
+        viewBusinessAccountBalanceButton.addActionListener(new ActionListener () {
+        	
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (businessAccountExists != true) {
+        			JOptionPane.showMessageDialog(frame, "This customer has not made a business accout");
+        			
+        		}
+        		else {
+        			JOptionPane.showMessageDialog(frame, "business account balance is $"+businessAccount.getBalance());
+        		}
+			}
+        });
         createCustomerButton.addActionListener(new ActionListener() {
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -190,16 +251,13 @@ public class BankerGUI extends JFrame implements MouseListener{
 	        	//send this to the server
 	        	// create a ObjectOutputStream so we can write data from it.
 		        try {
-		        	JOptionPane.showMessageDialog(frame, "sending message to server");
-					
-					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+		        	
+					//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 					JOptionPane.showMessageDialog(frame, "sending message to server");
 					
-					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
-					JOptionPane.showMessageDialog(frame, "sending message to server");
+					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
-			        System.out.println("login message fetched back");
 			        
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -240,8 +298,8 @@ public class BankerGUI extends JFrame implements MouseListener{
             	//send the message to the server
             	try {
             		JOptionPane.showMessageDialog(frame, "sending message");
-					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
+					//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
 					JOptionPane.showMessageDialog(frame,"got message");
@@ -268,7 +326,9 @@ public class BankerGUI extends JFrame implements MouseListener{
     int balanceOfChecking;
     int balanceOfSavings;
     int balanceOfBusiness;
+    *
     */
+		        	customer = newMessage.attachedCustomer;
 		        	fullname = newMessage.attachedCustomer.getName();
 		        	numOfAccounts = newMessage.attachedCustomer.getNumAccounts();
 		        	//use a loop to match the appropriate account to the variable
@@ -306,6 +366,7 @@ public class BankerGUI extends JFrame implements MouseListener{
             public void actionPerformed(ActionEvent e) {
             	System.out.println("creating a new account");
                 // Code to execute when createButton is clicked
+            	List<String> oof = new ArrayList<>();
                 String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
                 if (accountType.equals("Checking")) {
                 	checkingAccountExists = true;
@@ -319,35 +380,36 @@ public class BankerGUI extends JFrame implements MouseListener{
                 	businessAccountExists = true;
                 	numOfAccounts++;
                 }
-                String initialDeposit = JOptionPane.showInputDialog(frame, "Initial Deposit: ");
-                double newDeposit = Integer.parseInt(initialDeposit);
-                Message newMessage = null;
+                String userid = JOptionPane.showInputDialog(frame, "what is the userID?");
+                //double new = Integer.parseInt(initialDeposit);
+                Message newMessage = new Message();
                 try {
-					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
+                	
+					//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					if(accountType.equals("checking")) {
-	                	String []oof = {fullname,"Checking"};
+	                	oof.add(userid);
+	                	oof.add("Checking");
 	                	newMessage = new Message(MsgType.NewAccount, MsgStatus.Undefined, oof);
 	                	oos.writeObject(newMessage);
 						newMessage = (Message)ois.readObject();
-						JOptionPane.showMessageDialog(frame,"got message");
-	                	
+						
 	                }
 	                else if(accountType.equals("savings")) {
-	                	String []oof = {fullname,"Savings"};
+	                	oof.add(userid);
+	                	oof.add("Savings");
 	                	newMessage = new Message(MsgType.NewAccount, MsgStatus.Undefined, oof);
 	                	oos.writeObject(newMessage);
 						newMessage = (Message)ois.readObject();
-						JOptionPane.showMessageDialog(frame,"got message");
-	                	
+						
 	                }
 	                else if(accountType.equals("business")) {
-	                	String []oof = {fullname,"Business"};
+	                	oof.add(userid);
+	                	oof.add("Business");
 	                	newMessage = new Message(MsgType.NewAccount, MsgStatus.Undefined, oof);
 	                	oos.writeObject(newMessage);
 						newMessage = (Message)ois.readObject();
-						JOptionPane.showMessageDialog(frame,"got message");
-	                	
+						
 	                }
 	                else {
 	                	JOptionPane.showMessageDialog(frame, "invalid account type");
@@ -363,6 +425,7 @@ public class BankerGUI extends JFrame implements MouseListener{
                 	JOptionPane.showMessageDialog(frame, "successfully created new account");
          
                 }
+                
                 
                
             }
@@ -414,10 +477,10 @@ public class BankerGUI extends JFrame implements MouseListener{
         depositButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String amountText = JOptionPane.showInputDialog(frame, "Enter amount to deposit:$");
+                String userID = JOptionPane.showInputDialog(frame, "Enter the user ID");
                 String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to deposit in");
+                String amount = JOptionPane.showInputDialog(frame, "Enter the amount you would like to deposit");
                 
-                double amount = Double.parseDouble(amountText);
                 AccountType acc = AccountType.unidentified;
                 if (acountType.equals("checking")) {
                 	acc = AccountType.Checking;
@@ -430,22 +493,46 @@ public class BankerGUI extends JFrame implements MouseListener{
                 }
                 
                 ///find the acount
-                boolean found = false;
-                for (Account current : customer.getAccounts()) {
-    				if (current.getAccountType().equals(acountType)) {
-    					///show the account...
-    					found = true;
-    					//current.deposit(amount);
-    					JOptionPane.showMessageDialog(frame, "successfully deposited "+amount+" dollars. Your balance is now "+current.getBalance());
-    					
-    				}
-                }
-                if (found == false) {
-                	JOptionPane.showMessageDialog(frame, "unable to deposit "+amount);
+                
+                List<String> data = new ArrayList<>();
+                data.add(userID);
+                data.add(acountType);
+                data.add(amount);
+                Message newMessage = new Message(MsgType.Deposit,MsgStatus.Undefined,data);
+                
+                try {
+					oos.writeObject(newMessage);
+					newMessage = (Message)ois.readObject();
 					
-                }
-                //account.deposit(amount);
-                //balanceLabel.setText("Balance: $" + account.getBalance());
+				} catch (IOException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				if (newMessage.status == MsgStatus.Success) {
+					AccountType re = newMessage.attachedAccount.getAccountType();
+					if (re == AccountType.Checking) {
+						balanceOfChecking = newMessage.attachedAccount.getBalance();
+						checkingAccount = newMessage.attachedAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+balanceOfChecking);
+					}
+					else if (re == AccountType.Savings) {
+						balanceOfSavings = newMessage.attachedAccount.getBalance();
+						savingsAccount = newMessage.attachedAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+balanceOfSavings);
+						
+					}
+					else if (re == AccountType.Business) {
+						balanceOfBusiness = newMessage.attachedAccount.getBalance();
+						businessAccount = newMessage.attachedAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+balanceOfBusiness);
+						
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(frame, "Unable to deposit $"+amount);
+				}
+                
             }
         });
 

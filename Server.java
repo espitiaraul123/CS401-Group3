@@ -36,7 +36,7 @@ public class Server {
 	
     private static class ClientHandler implements Runnable {
         private Socket socket;
-
+        Customer currentCustomer;
         ClientHandler(Socket socket) {
             this.socket = socket;
         }
@@ -48,6 +48,7 @@ public class Server {
 			
     		// A HashMap to hold all the Customer's information
     		// including all its accounts and transactions
+			
         	Map<Integer, Customer> customers = new HashMap<>();
         	readCustomersFromFile(customers);
 			
@@ -60,13 +61,18 @@ public class Server {
 				while((message = (Message)objectInputStream.readObject()) != null) {
 					
 		        	// do stuff
-		        	/* Tests
-		        	System.out.println("POOP");
-		        	Customer testCustomer = customers.get(123);
-		        	System.out.println(testCustomer.getName());
-		        	System.out.println("WORKED");
-		        	
-		        	System.out.println(getNewUserID());
+		        	// Tests
+					//if the message type new Customer ,call new customer with appropriate parameters
+		        	if (message.getType() == MsgType.NewCustomer) {
+		        		message = createNewCustomer(message.data, customers);
+		        		objectOutputStream.writeObject(message);
+		        		
+		        	}
+		        	else if (message.getType() == MsgType.NewAccount) {
+		        		message = addAccount(message.data, customers);
+		        		objectOutputStream.writeObject(message);
+		        	}
+		        	/*System.out.println(getNewUserID());
 		        	
 		        	List<String> newCustomerData = List.of("222", "Bobby");
 		        	createNewCustomer(newCustomerData, customers);
@@ -77,11 +83,12 @@ public class Server {
 		        	List<String> data = List.of("2", "Checking"); 
 		        	addAccount(data, customers);
 		        	*/
-		        	/* deposit test
-		        	List<String> data2 = List.of("2", "1", "200");
-		        	deposit(data2, customers);
-		        	writeCustomersToFile(customers);
-		        	*/
+		        	else if (message.getType() == MsgType.Deposit) {
+		        		message = deposit(message.data, customers);
+		        		System.out.println(message.attachedAccount.getBalance());
+		        		objectOutputStream.writeObject(message);
+		        	}
+		        	
 		        	/* withdraw test
 		        	List<String> data2 = List.of("2", "1", "25.25");
 		        	withdraw(data2, customers);
@@ -89,10 +96,11 @@ public class Server {
 		        	*/
 		        	
 		        	// verifyLogin tests
-					if (message.getType()==MsgType.Login) {
+		        	else if (message.getType()==MsgType.Login) {
 						message = verifyLogin(message.data,customers);
 						//send the message object with the customer back to the gui
 						objectOutputStream.writeObject(message);
+						
 					}
 		        	
 		        	
@@ -218,13 +226,23 @@ public class Server {
         }
         
         // done
-        public void createNewCustomer(List<String> data, Map<Integer, Customer> customers) {
-        	int userID = getNewID(0);
-        	int PIN = Integer.parseInt(data.get(0));
-        	String name = data.get(1);
-        	
+        public Message createNewCustomer(List<String> data, Map<Integer, Customer> customers) {
+        	//int userID = getNewID(0);
+        	int userID = Integer.parseInt(data.get(1));
+        	int PIN = Integer.parseInt(data.get(2));
+        	String name = data.get(0);
+        	System.out.println("inside createNewCustomer");
         	Customer customer = new Customer(userID, PIN, name);
         	customers.put(userID, customer);
+        	currentCustomer = customer;
+        	//as soon as the new customer is created, write the new map to the file
+        	writeCustomersToFile(customers);
+        	///immediately read
+        	readCustomersFromFile(customers);
+        	Message response = new Message();
+        	response.status = MsgStatus.Success;
+        	response.attachedCustomer = customer;
+        	return response;
         }
         
         // done
@@ -238,16 +256,24 @@ public class Server {
         }
         
         // done
-        public void addAccount(List<String> data, Map<Integer, Customer> customers) {
+        public Message addAccount(List<String> data, Map<Integer, Customer> customers) {
         	int userID = Integer.parseInt(data.get(0));
         	Customer customer = customers.get(userID);
-        	
+        	//alt
         	int accountID = getNewID(1);
         	AccountType accountType = AccountType.valueOf(data.get(1));
         	
         	Account account = new Account(accountID, accountType);
         	
         	customer.addAccount(account);
+        	customers.get(userID).addAccount(account);
+        	//since the map was updated, write, and read the file again
+        	writeCustomersToFile(customers);
+        	readCustomersFromFile(customers);
+        	///make a new response message to send back
+        	Message response = new Message();
+        	response.status = MsgStatus.Success;
+        	return response;
         }
         
         // done
@@ -265,16 +291,51 @@ public class Server {
         }
         
         // done
-        public void deposit(List<String> data, Map<Integer, Customer> customers) {
+        public Message deposit(List<String> data, Map<Integer, Customer> customers) {
+        	System.out.println("inside deposit");
         	int userID = Integer.parseInt(data.get(0));
-        	int accountID = Integer.parseInt(data.get(1));
+        	String acco = data.get(1);
+        	AccountType accountType = AccountType.unidentified;
+        	if (acco.equals("checking")) {
+        		accountType = AccountType.Checking;
+        	}
+        	else if (acco.equals("savings")) {
+        		accountType = AccountType.Savings;
+        	}
+        	else if (acco.equals("business")) {
+        		accountType = AccountType.Business;
+        	}
+        	
         	double amount = Double.parseDouble(data.get(2));
         	
         	Customer customer = customers.get(userID);
-        	Account account = customer.getAccount(accountID);
+        	//Account account = customer.getAccount(accountID);
+        	Message response = new Message();
+        	//Account acc = new Account(accountType);
+        	for (Account acc : customer.getAccounts()) {
+        		if (accountType == acc.getAccountType()) {
+        			///were going to remove this account and replace it with the updated one
+        			System.out.println("current Account balance is "+acc.getBalance());
+        			customer.getAccounts().remove(acc);
+        			int transactionID = getNewID(2);
+        			acc.deposit(amount, transactionID);
+        			//place the new one back
+        			customer.getAccounts().add(acc);
+        			//replace the old customer object
+        			customers.replace(userID, customer);
+        			//since the cusomter object is updated, write and read the files again
+        			writeCustomersToFile(customers);
+        			readCustomersFromFile(customers);
+        			//now that this is done, we can send the object back
+        			response.attachedAccount = acc;
+        			//System.out.println("second current Account balance is "+acc.getBalance());
+        			
+        			response.status = MsgStatus.Success;
+        			return response;
+        		}
+        	}
+        	return response;
         	
-        	int transactionID = getNewID(2);
-        	account.deposit(amount, transactionID);	
         }
         
         // done
@@ -292,6 +353,7 @@ public class Server {
         
         // done
         public Message verifyLogin(List<String> data, Map<Integer, Customer> customers) {
+        	System.out.println("inside verify login");
         	boolean success = false;
         	int userID = Integer.parseInt(data.get(1));
         	int PIN = Integer.parseInt(data.get(2));
@@ -335,7 +397,8 @@ public class Server {
         	// IDData[0] holds largest transactionID
     		List<String> IDData = new ArrayList<>();
         	int newID;
-    		
+        	//System.out.println("inside getNewID loop");
+			
         	// Read the IDData file
         	try {
                	FileReader idDataFile = new FileReader("idData.txt");
@@ -344,6 +407,7 @@ public class Server {
         		// Read every line of the file, putting everything into the IDData list.
         		String line = fileReader.readLine();
         		while (line != null) {
+        			System.out.println("inside getNewID loop");
         			IDData.add(line);
         			line = fileReader.readLine();
         		}	
