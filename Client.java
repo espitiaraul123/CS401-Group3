@@ -24,9 +24,9 @@ class Client {
 			if (selectedOption == JOptionPane.YES_OPTION) {
 				
 			
-		        String username = JOptionPane.showInputDialog(null, "Hello, please enter your userID");
+		        String username = JOptionPane.showInputDialog(null, "Hello, please enter your username");
 				//int userid = Integer.parseInt(userID);
-				String password = JOptionPane.showInputDialog(null, "please enter your PIN");
+				String password = JOptionPane.showInputDialog(null, "please enter your password");
 				//int pin = Integer.parseInt(PIN);
 				
 				if ((username+password).equals("adminbanker")) {
@@ -53,8 +53,7 @@ class Client {
 	        	
             	//send the message to the server
             	try {
-            		JOptionPane.showMessageDialog(frame, "sending message");
-					//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            		//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					objectOutputStream.writeObject(newMessage);
 					newMessage = (Message)objectInputStream.readObject();
@@ -74,6 +73,9 @@ class Client {
 		        	JOptionPane.showMessageDialog(frame, "Successfully logged in and fetched customer");
 		        	Customer customer = newMessage.attachedCustomer;
 		        	ATM ATMgui= new ATM(customer);
+            	}
+            	else {
+            		JOptionPane.showMessageDialog(frame, "Login was unsuccessful :(");
             	}
 		        	//add data to the array
 		    

@@ -12,8 +12,8 @@ public class Account implements Serializable{
 	
 	// done
 	// Constructor
-	Account(AccountType accountType) {
-		//this.accountID = accountID;
+	Account(int Accountid,AccountType accountType) {
+		this.accountID = accountID;
 		this.balance = 0.00;
 		this.accountType = accountType;
 		this.numTransactions = 0;
@@ -83,7 +83,23 @@ public class Account implements Serializable{
 
 		return accountAsString;
 	}
+	
+	public List<String> viewTransactions() {
+        int count = 0;
+        List<String> transactionHistory = new ArrayList<String>();
+        // traverses the transactions in reverse order to mention the most recent transaction first
+        for(int i = numTransactions - 1; i >= 0; i--) {
 
+            if(count > 5) {
+                break;
+            }
+
+            transactionHistory.add(transactions.get(i).toString());
+            count++;
+        }
+
+        return transactionHistory;
+    }
 	// done
 	public void deposit(double amount, int transactionID) {
 		balance += amount;
@@ -108,22 +124,7 @@ public class Account implements Serializable{
 	}
 	
 
-	public List<String> viewTransactions() {
-		int count = 0;
-		List<String> transactionHistory = new ArrayList<String>();
-		// traverses the transactions in reverse order to mention the most recent transaction first
-		for(int i = numTransactions - 1; i >= 0; i--) {
-			
-			if(count > 5) {
-				break;
-			}
-		
-			transactionHistory.add(transactions.get(i).toString());
-			count++;
-		}
-		
-		return transactionHistory;
-	}
+	
 	
 	/* idk yet
 	//get a transaction

@@ -85,18 +85,28 @@ public class Customer implements Serializable{
 		
 		return customerAsString;
 	}
-	
+	public Message lookForAccount(AccountType accountType) {
+		Message mess = new Message();
+		for (Account acc : accounts) {
+    		if (accountType == acc.getAccountType()) {
+    			mess.attachedAccount = acc;
+    			mess.status = MsgStatus.Success;
+    			return mess;
+    		}
+		}
+		mess.setStatus(MsgStatus.Failure);
+		return mess;
+	}
 	// done
 	// Returns an account, which is asked for by its ID
-	public Account getAccount(int accountID) {
-		Account accountTemp;
-		for(int i = 0; i < numAccounts; i++) {
-			accountTemp = accounts.get(i);
-			if (accountTemp.getAccountID() == accountID) {
-				return accountTemp;
-			}
+	public Account getAccount(AccountType accountType) {
+		Message mess = lookForAccount(accountType);
+		if (mess.status == MsgStatus.Success) {
+			return mess.attachedAccount;
 		}
-		return null;
+		else
+			return null;
+		
 	}
 	
 	// done

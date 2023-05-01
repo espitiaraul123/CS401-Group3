@@ -18,7 +18,8 @@ public class GUI {
 	private JLabel balanceLabel;
 	private JList<Account> accountList;
 	private DefaultListModel<Account> accountListModel;
-
+	
+	
 	public GUI() {
 		
 		//Create a new JFrame

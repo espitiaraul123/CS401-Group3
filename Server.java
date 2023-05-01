@@ -72,6 +72,10 @@ public class Server {
 		        		message = addAccount(message.data, customers);
 		        		objectOutputStream.writeObject(message);
 		        	}
+		        	else if (message.getType() == MsgType.Withdraw) {
+		        		message = withdraw(message.data, customers);
+		        		objectOutputStream.writeObject(message);
+		        	}
 		        	/*System.out.println(getNewUserID());
 		        	
 		        	List<String> newCustomerData = List.of("222", "Bobby");
@@ -88,12 +92,14 @@ public class Server {
 		        		System.out.println(message.attachedAccount.getBalance());
 		        		objectOutputStream.writeObject(message);
 		        	}
-		        	
-		        	/* withdraw test
-		        	List<String> data2 = List.of("2", "1", "25.25");
-		        	withdraw(data2, customers);
-		        	writeCustomersToFile(customers);
-		        	*/
+		        	else if (message.getType() == MsgType.ViewTransactions) {
+		        		message = viewTransactions(message.data, customers);
+		        		objectOutputStream.writeObject(message);
+		        	}
+		        	else if (message.getType() == MsgType.Transfer) {
+		        		message = transferFunds(message.data, customers);
+		        		objectOutputStream.writeObject(message);
+		        	}
 		        	
 		        	// verifyLogin tests
 		        	else if (message.getType()==MsgType.Login) {
@@ -312,44 +318,138 @@ public class Server {
         	//Account account = customer.getAccount(accountID);
         	Message response = new Message();
         	//Account acc = new Account(accountType);
-        	for (Account acc : customer.getAccounts()) {
-        		if (accountType == acc.getAccountType()) {
-        			///were going to remove this account and replace it with the updated one
-        			System.out.println("current Account balance is "+acc.getBalance());
-        			customer.getAccounts().remove(acc);
-        			int transactionID = getNewID(2);
-        			acc.deposit(amount, transactionID);
-        			//place the new one back
-        			customer.getAccounts().add(acc);
-        			//replace the old customer object
-        			customers.replace(userID, customer);
-        			//since the cusomter object is updated, write and read the files again
-        			writeCustomersToFile(customers);
-        			readCustomersFromFile(customers);
-        			//now that this is done, we can send the object back
-        			response.attachedAccount = acc;
-        			//System.out.println("second current Account balance is "+acc.getBalance());
-        			
-        			response.status = MsgStatus.Success;
-        			return response;
-        		}
+        	Account account = customer.getAccount(accountType);
+        	System.out.println("current balance is "+account.getBalance());
+        	int transactionID = getNewID(2);
+        	
+        	if (account!=null) {
+        		account.deposit(amount, transactionID);
+        		System.out.println("new balance is "+account.getBalance());
+            	
+                response.attachedAccount = account;
+                response.attachedCustomer = customer;
+                response.status = MsgStatus.Success;
         	}
+        	
         	return response;
         	
         }
         
         // done
-        public void withdraw(List<String> data, Map<Integer, Customer> customers) {
+        public Message withdraw(List<String> data, Map<Integer, Customer> customers) {
+        	Message mess = new Message();
         	int userID = Integer.parseInt(data.get(0));
-        	int accountID = Integer.parseInt(data.get(1));
-        	double amount = Double.parseDouble(data.get(2));
+        	String acco = data.get(1);
         	
+        	AccountType accountType = AccountType.unidentified;
+        	if (acco.equals("checking")) {
+        		accountType = AccountType.Checking;
+        	}
+        	else if (acco.equals("savings")) {
+        		accountType = AccountType.Savings;
+        	}
+        	else if (acco.equals("business")) {
+        		accountType = AccountType.Business;
+        	}
+        	double amount = Double.parseDouble(data.get(2));
+        	System.out.println("amount trying to get removed "+amount);
         	Customer customer = customers.get(userID);
-        	Account account = customer.getAccount(accountID);
+        	
+        	Account account = customer.getAccount(accountType);
+        	System.out.println("current balance is "+account.getBalance());
+        	
         	
         	int transactionID = getNewID(2);
-        	account.withdraw(amount, transactionID);	
+        	if (account!=null) {
+        		account.withdraw(amount, transactionID);
+        		System.out.println("new balance is "+account.getBalance());
+            	
+                mess.attachedAccount = account;
+                mess.attachedCustomer = customer;
+                mess.status = MsgStatus.Success;
+        	}
+        	else {
+        		mess.status = MsgStatus.Failure;
+        	}
+        	return mess;
         }
+        public Message transferFunds(List<String> data, Map<Integer, Customer> customers) {
+        	String acco = data.get(0);
+        	AccountType accountType = AccountType.unidentified;
+        	if (acco.equals("checking")) {
+        		accountType = AccountType.Checking;
+        	}
+        	else if (acco.equals("savings")) {
+        		accountType = AccountType.Savings;
+        	}
+        	else if (acco.equals("business")) {
+        		accountType = AccountType.Business;
+        	}
+        	
+        	double amount = Double.parseDouble(data.get(1));
+        	
+        	String acco1 = data.get(2);
+        	AccountType accountType1 = AccountType.unidentified;
+        	if (acco1.equals("checking")) {
+        		accountType1 = AccountType.Checking;
+        	}
+        	else if (acco1.equals("savings")) {
+        		accountType1 = AccountType.Savings;
+        	}
+        	else if (acco1.equals("business")) {
+        		accountType1 = AccountType.Business;
+        	}
+        	int userID = Integer.parseInt(data.get(3));
+        	Customer customer = customers.get(userID);
+        	Message mess = new Message();
+        	
+        	Account accountToWithDrawFrom = customer.getAccount(accountType);
+        	Account accountToTransferTo = customer.getAccount(accountType1);
+        	int transactionID = getNewID(2);
+        	int transactionID1 = getNewID(2);
+        	if (accountToWithDrawFrom!=null&&accountToTransferTo!=null) {
+        		accountToWithDrawFrom.withdraw(amount, transactionID);
+        		
+        		accountToTransferTo.deposit(amount, transactionID1);
+        		
+                System.out.println("operation was a success");
+                mess.status = MsgStatus.Success;
+                return mess;
+        	}
+        	return mess;
+        	
+        }
+        
+        public Message viewTransactions(List<String> data, Map<Integer, Customer> customers) {
+            int userID = Integer.parseInt(data.get(0));
+            String acco = data.get(1);
+            
+            AccountType accountType = AccountType.unidentified;
+        	if (acco.equals("checking")) {
+        		accountType = AccountType.Checking;
+        	}
+        	else if (acco.equals("savings")) {
+        		accountType = AccountType.Savings;
+        	}
+        	else if (acco.equals("business")) {
+        		accountType = AccountType.Business;
+        	}
+        	
+            Customer customer = customers.get(userID);
+            Account account = customer.getAccount(accountType);
+            Message message = new Message();
+            if (account != null) {
+            	List<String> strTransactions = account.viewTransactions();
+            	message = new Message(MsgType.ViewTransactions, MsgStatus.Success, strTransactions);
+                return message;
+
+            }
+            
+            return message;
+        }
+        
+        
+        
         
         // done
         public Message verifyLogin(List<String> data, Map<Integer, Customer> customers) {
@@ -407,7 +507,6 @@ public class Server {
         		// Read every line of the file, putting everything into the IDData list.
         		String line = fileReader.readLine();
         		while (line != null) {
-        			System.out.println("inside getNewID loop");
         			IDData.add(line);
         			line = fileReader.readLine();
         		}	

@@ -4,10 +4,12 @@ public enum MsgType {
 	Login,
 	Transfer,
 	Deposit,
-	Withraw,
+	Withdraw,
 	NewCustomer,
 	NewAccount,
 	RemoveCustomer,
 	RemoveAccount,
+	UpdateCustomer,
+	ViewTransactions,
 	Logout
 }

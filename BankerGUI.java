@@ -16,7 +16,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class BankerGUI extends JFrame implements MouseListener{
+public class BankerGUI extends JFrame {
     /**
 	 * 
 	 */
@@ -110,7 +110,7 @@ public class BankerGUI extends JFrame implements MouseListener{
         //Add Label and button panel
         labelPanel = new JPanel(new GridLayout(2,1));
         nameLabel = new JLabel("Customer Name: ");
-        balanceLabel = new JLabel("Balance: $");
+        
 
         //Add JList for customers
         String[] accounts = {"checking account", "savings account", "business account"};
@@ -122,7 +122,7 @@ public class BankerGUI extends JFrame implements MouseListener{
         
         //Add components to label panel
         labelPanel.add(nameLabel);
-        labelPanel.add(balanceLabel);
+        
         labelPanel.add(new JScrollPane(customerList));
         
         /*customerList.addListSelectionListener (
@@ -282,8 +282,7 @@ public class BankerGUI extends JFrame implements MouseListener{
         logIntoCustomerAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	JOptionPane.showMessageDialog(frame, "logging into customer profile");
-				
+            	
                 // Code to execute when createButton is clicked
             	
             	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
@@ -297,12 +296,10 @@ public class BankerGUI extends JFrame implements MouseListener{
 	        	
             	//send the message to the server
             	try {
-            		JOptionPane.showMessageDialog(frame, "sending message");
-					//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            		//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
-					JOptionPane.showMessageDialog(frame,"got message");
 					
 			        
 			        
@@ -535,13 +532,68 @@ public class BankerGUI extends JFrame implements MouseListener{
                 
             }
         });
+        transactionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Code to execute when createButton is clicked
+                List<String> viewTransactionsText = new ArrayList<String>();
 
-        /*withdrawButton.addActionListener(new ActionListener() {
+                Message message = null;
+
+                String customerID = JOptionPane.showInputDialog(frame, "Enter your userID:");
+                viewTransactionsText.add(customerID);
+                String acctType = JOptionPane.showInputDialog(frame, "Enter the account Type:");
+                viewTransactionsText.add(acctType);
+
+                try {
+                    //ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                    //ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+                    // send the information of the gui to the client
+                    oos.writeObject(new Message(MsgType.ViewTransactions, MsgStatus.Undefined, viewTransactionsText));
+
+                    // once client has sent a request to the server and recieve a message back
+                    // display the transactions
+                    message = (Message) ois.readObject();
+                    String transactions = "";
+
+                    if (message.status == MsgStatus.Success) {
+                    	List<String> transactionsList = message.getData();
+                    	for(int i = 0; i < transactionsList.size(); i++) {
+
+                            transactions += (transactionsList.get(i) + "\n");
+
+
+                        }
+                    	JOptionPane.showMessageDialog(frame, "These are the following transactions made:\n"+transactions);
+
+                        
+                    }
+                    else {
+                    	JOptionPane.showMessageDialog(frame, "unable to retrieve transactions");
+
+                    }
+                    
+                } catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+                
+
+
+
+            }
+        });
+        withdrawButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
+            	String userID = JOptionPane.showInputDialog(frame, "Enter the user ID");
+                String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to withdraw in");
                 String amountText = JOptionPane.showInputDialog(frame, "Enter amount to withdraw:$");
-                String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to deposit in");
                 
                 double amount = Double.parseDouble(amountText);
                 AccountType acc = AccountType.unidentified;
@@ -556,25 +608,50 @@ public class BankerGUI extends JFrame implements MouseListener{
                 }
                 
                 ///find the acount
-                boolean found = false;
-                for (Account current : customer.getAccounts()) {
-    				if (current.getAccountType().equals(acountType)) {
-    					///show the account...
-    					found = true;
-    					boolean success = current.withdraw(amount);
-    					JOptionPane.showMessageDialog(frame, "successfully deposited "+amount+" dollars. Your balance is now "+current.getBalance());
-    					
-    				}
-                }
-                if (found == false) {
-                	JOptionPane.showMessageDialog(frame, "unable to deposit "+amount);
+                List<String> data = new ArrayList<>();
+                data.add(userID);
+                data.add(acountType);
+                data.add(amountText);
+                
+                Message newMessage = new Message(MsgType.Withdraw,MsgStatus.Undefined,data);
+                
+                try {
+					oos.writeObject(newMessage);
+					newMessage = (Message)ois.readObject();
 					
-                }
-                //account.deposit(amount);
-                //balanceLabel.setText("Balance: $" + account.getBalance());
+				} catch (IOException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				if (newMessage.status == MsgStatus.Success) {
+					AccountType re = newMessage.attachedAccount.getAccountType();
+					if (re == AccountType.Checking) {
+						balanceOfChecking = newMessage.attachedAccount.getBalance();
+						checkingAccount = newMessage.attachedAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+checkingAccount.getBalance());
+					}
+					else if (re == AccountType.Savings) {
+						balanceOfSavings = newMessage.attachedAccount.getBalance();
+						savingsAccount = newMessage.attachedAccount;
+						
+						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+savingsAccount.getBalance());
+						
+					}
+					else if (re == AccountType.Business) {
+						balanceOfBusiness = newMessage.attachedAccount.getBalance();
+						businessAccount = newMessage.attachedAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+businessAccount.getBalance());
+						
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(frame, "Unable to deposit $"+amount);
+				}
+                
             }
             
-        });*/
+        });
 
         transferButton.addActionListener(new ActionListener() {
             @Override
@@ -596,6 +673,49 @@ public class BankerGUI extends JFrame implements MouseListener{
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to execute when createButton is clicked
+                List<String> viewTransactionsText = new ArrayList<String>();
+
+                Message message = null;
+
+                String customerID = JOptionPane.showInputDialog(frame, "Enter your userID:");
+                viewTransactionsText.add(customerID);
+                String acctType = JOptionPane.showInputDialog(frame, "Enter the account Type:");
+                viewTransactionsText.add(acctType);
+
+                try {
+                    //ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                    //ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+                    // send the information of the gui to the client
+                    oos.writeObject(new Message(MsgType.ViewTransactions, MsgStatus.Undefined, viewTransactionsText));
+
+                    // once client has sent a request to the server and recieve a message back
+                    // display the transactions
+                    message = (Message) ois.readObject();
+                    List<String> transactionsList = message.getData();
+                    String transactions = "";
+
+                    for(int i = 0; i < transactionsList.size(); i++) {
+
+                        transactions += (transactionsList.get(i) + "\n");
+
+
+                    }
+
+                    JOptionPane.showMessageDialog(frame, transactions);
+
+
+                } catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+                
+
+
+
             }
         });
 
@@ -609,43 +729,4 @@ public class BankerGUI extends JFrame implements MouseListener{
 
     }
 
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-    /*public static void main(String[] args) {
-        //Create instance of BankerGUI
-        new BankerGUI();
-    }*/
 }

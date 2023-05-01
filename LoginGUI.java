@@ -3,12 +3,19 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class LoginGUI implements ActionListener {
+	private String enteredUsername;
+	private String enteredPassword;
+	private boolean enteredCredentials = false;
+	
 	private static JLabel password1, label;
 	private static JTextField username;
 	private static JButton button;
-	private static JPasswordField Password;
+	private static JTextField Password;
 	private static JPanel accountPanel;
+	private static JButton loginButton;
+	
 	private JList<Account> accountList;
 	
 	public LoginGUI() {
@@ -18,12 +25,13 @@ public class LoginGUI implements ActionListener {
 	
 	//JFrame Class
 	JFrame frame = new JFrame();
-	frame.setTitle("Customer Login");
+	frame.setTitle("Golden State Bank Login");
 	frame.setLocation(new Point(500, 300));
 	frame.add(panel);
-	frame.setSize(new Dimension(400, 200));
+	frame.setSize(new Dimension(420, 420));
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	
+	frame.getContentPane().setBackground(new Color(123,50,250));
 	//Username Label Constructor
 	label = new JLabel("Username");
 	label.setBounds(100,8,70,20);
@@ -40,40 +48,59 @@ public class LoginGUI implements ActionListener {
 	panel.add(password1);
 	
 	//Password TextField Constructor
-	Password = new JPasswordField();
+	Password = new JTextField();
 	Password.setBounds(100,75,193,20);
 	panel.add(Password);
 	
 	
 	//Login Button
-	JButton loginButton = new JButton("Login");
+	loginButton = new JButton("Login");
 	loginButton.setBounds(150,110,80,25);
 	loginButton.addActionListener(this);
 	panel.add(loginButton);
 	
-	frame.setVisible(true); //Make frame visible
+	
+	
+	//frame.pack();
+	
+	frame.setVisible(true);  //Make frame visible
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String enteredUsername = username.getText();
-		String enteredPassword = Password.getText();
+		if (e.getSource()==button) {
+			username.getText();
+			Password.getText();
+			loginButton.setEnabled(false);
+			//textField.setEditable(false);
+			this.enteredUsername = username.getText();
+			this.enteredPassword = password1.getText();
+			this.enteredCredentials = true;
+			System.out.println("hello "+enteredUsername+" "+enteredPassword);
+		}
 		
 		//Check if username and password are correct
 		boolean loginSuccessful = checkLoginCredentials(enteredUsername, enteredPassword);
 		
 	    if (loginSuccessful) {
 	        JOptionPane.showMessageDialog(null, "Login Successful");
-	        BankerGUI bankerGUI = new BankerGUI(); //Cerate object of BankerGUI class
 	    } else {
-	        JOptionPane.showMessageDialog(null, "Incorrect login. Please try again");
+	        JOptionPane.showMessageDialog(null, "Incorrect username or password");
 	    }
 	}
+	
 	
 	private boolean checkLoginCredentials(String username, String password) {
 	    // Replace this with your actual login check logic
 	    // For now, just check if the username is "admin" and password is "password"
 	    return username.equals("admin") && password.equals("password");
+	}
+	public String getEnteredCredentials () {
+		String credentials = enteredUsername + " "+enteredPassword;
+		return credentials;
+	}
+	public boolean enteredCredentials() {
+		return enteredCredentials;
 	}
 	
 	public static void main(String args[]) {
