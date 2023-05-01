@@ -64,8 +64,9 @@ public class LoginGUI implements ActionListener {
 		
 	    if (loginSuccessful) {
 	        JOptionPane.showMessageDialog(null, "Login Successful");
+	        BankerGUI bankerGUI = new BankerGUI(); //Cerate object of BankerGUI class
 	    } else {
-	        JOptionPane.showMessageDialog(null, "Incorrect username or password");
+	        JOptionPane.showMessageDialog(null, "Incorrect login. Please try again");
 	    }
 	}
 	

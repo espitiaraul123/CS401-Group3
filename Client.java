@@ -9,19 +9,17 @@ class Client {
 		try (Socket socket = new Socket("localhost", 1234)) {
 	        // create a ObjectOutputStream so we can write data from it.
 	        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-	        // create a ObjectInputStream so we can read data from it.
-	        //ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+	        
+	        //Create an instance of the GUI class
+	        LoginGUI LoginGUI = new LoginGUI();
 
 	        int choice = 1;
 	        do {
 	        	Message message = null;
-	        	//Message returnMessage = null;
 	        	switch (choice) {
 	        	case 1:
 	        		message = new Message();
 	        		objectOutputStream.writeObject(message);
-	        		// returnMessage = (Message)objectInputStream.readObject();
-	        		// System.out.println(returnMessage.getText());
 	        		break;
 	        	case 2:
 	        		break;
