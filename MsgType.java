@@ -9,5 +9,6 @@ public enum MsgType {
 	NewAccount,
 	RemoveCustomer,
 	RemoveAccount,
+	ViewTransactions,
 	Logout
 }

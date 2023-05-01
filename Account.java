@@ -1,63 +1,130 @@
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Account {
-	private String name; // customer name
-	private int accountNumber; // account number
+	private int accountID;
+	private double balance;
 	private AccountType accountType; // account type (e.g., savings, checking, etc.)
-	private ArrayList<Transaction> transactions = null; // list of transactions
-	private int accountNumber; // account number
-	private int numberOfTransactions; // amount of transactions
-	private double balance; // account balance
-	private static int count = 10000;
-	private Date date;
-
-
-	//Constructor
-	public Account(String name, AccountType accountType, double initialDeposit) {
-		this.name = name;
-		this.accountNumber = count++;
+	private int numTransactions;
+	private List<Transaction> transactions;
+	
+	// done
+	// Constructor
+	Account(int accountID, AccountType accountType, int initialDeposit) {
+		this.accountID = accountID;
+		this.balance = initialDeposit;
 		this.accountType = accountType;
-		this.transactions = new ArrayList<Transaction>(); // creates an empty ArrayList of transactions
-		this.numberOfTransactions = 0;
-		this.balance = initialDeposit; // sets the balance to zero upon account creation
+		this.numTransactions = 0;
+		this.transactions = new ArrayList<>();
+	}
+	// done
+	// This constructor is just used for testing.
+	Account(int accountID, double balance, AccountType accountType, int numTransactions, List<Transaction> transactions) {
+		this.accountID = accountID;
+		this.balance = balance;
+		this.accountType = accountType;
+		this.numTransactions = numTransactions;
+		this.transactions = transactions;
 	}
 	
-	public Account(double balance, AccountType accountType, int numTransactions, ArrayList<Transaction> transactions) {
-		this.accountNumber = count++;
-		this.accountType = accountType;
-		this.transactions = transactions; // creates an empty ArrayList of transactions
-		this.numberOfTransactions = numTransactions;
-		this.balance = balance; // sets the balance to zero upon account creation
-		
-		
+	// done
+	// Getters
+	public int getAccountID() {
+		return accountID;
 	}
-
-	//Getter to retrieve Customer's name
-	public String getName() {
-		return name;
-	}
-
-	//Getter to retrieve account number
-	public int getAccountNumber() {
-		return accountNumber;
-	}
-
-	//Getter to retrieve account type
-	public AccountType getAccountType() {
-		return accountType;
-	}
-
-	//Getter to retrieve transaction array
-	public ArrayList<Transaction> getTransactions(){
-		return this.transactions; // returns the list of transactions
-	}
-
-	//Getter to retrieve Account balance
 	public double getBalance() {
 		return balance;
 	}
+	public AccountType getAccountType() {
+		return accountType;
+	}
+	public int getNumTransactions() {
+		return numTransactions;
+	}
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+	// done
+	// Setters
+	public void setAccountID(int accountID) {
+		this.accountID = accountID;
+	}
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+	public void setAccountType(AccountType accountType) {
+		this.accountType = accountType;
+	}
+	public void setNumTransactions(int numTransactions) {
+		this.numTransactions = numTransactions;
+	}
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
+	}
+	
+	// done
+	// toString()
+	// Used for reading and writing to the database(text file)
+	public String toString() {
+		String accountAsString = "";
+		
+		accountAsString = accountAsString.concat(Integer.toString(accountID) + ","
+													+ Double.toString(balance) + ","
+													+ accountType.toString() + ","
+													+ Integer.toString(numTransactions) + "\n");
+		
+		// Include all the transaction information
+		for(int i = 0; i < numTransactions; i++) {
+			Transaction transaction = transactions.get(i);
+			accountAsString = accountAsString.concat(transaction.toString());
+		}
 
+		return accountAsString;
+	}
+
+	// done
+	public void deposit(double amount, int transactionID) {
+		balance += amount;
+		
+		Transaction transaction = new Transaction(transactionID, amount, TransactionType.DEPOSIT, java.time.LocalDate.now().toString());
+		transactions.add(transaction);
+		numTransactions++;
+	}
+	// done
+	public boolean withdraw(double amount, int transactionID) {
+		if (balance < amount) {
+			return false;
+		}
+		
+		balance -= amount;
+		
+		Transaction transaction = new Transaction(transactionID, amount, TransactionType.WITHDRAW, java.time.LocalDate.now().toString());
+		transactions.add(transaction);
+		numTransactions++;
+		
+		return true;
+	}
+	
+
+	public List<String> viewTransactions() {
+		int count = 0;
+		List<String> transactionHistory = new ArrayList<String>();
+		// traverses the transactions in reverse order to mention the most recent transaction first
+		for(int i = numTransactions - 1; i >= 0; i--) {
+			
+			if(count > 5) {
+				break;
+			}
+		
+			transactionHistory.add(transactions.get(i).toString());
+			count++;
+		}
+		
+		return transactionHistory;
+	}
+	
+	/* idk yet
 	//get a transaction
 	public String getTransactionsByDate(Date date) {
 		String transactionsByDate = "";
@@ -124,22 +191,6 @@ public class Account {
 			return false; // returns false to indicate a failed transfer
 		}
 	}
-
-	public String toString() {
-		String accountTransactions = transactionHistory();
-		
-		//return(name + "," + accountNumber + "," + accountType + "," + balance + "," + transactions.size());
-		return(accountNumber + "," + balance + "," + accountType + "," + transactions.size() +
-				"\n" + accountTransactions);
-
-		
-	}
-	
-	
-
-
-
-
-
+	*/
 }
 
