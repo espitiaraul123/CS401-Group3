@@ -9,6 +9,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -172,15 +174,25 @@ public class BankerGUI extends JFrame implements MouseListener{
         		String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
 	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
 	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
-	        	String[] arrayofStrings = {userID, pin, fullname};
-	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayofStrings);
+	        	List<String> arrayOfStrings = new ArrayList<String>();
+	        	arrayOfStrings.add(fullname);
+	        	arrayOfStrings.add(userID);
+	        	arrayOfStrings.add(pin);
 	        	
+	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayOfStrings);
+	        	JOptionPane.showMessageDialog(frame, "created message");
+				
 	        	
 	        	//send this to the server
 	        	// create a ObjectOutputStream so we can write data from it.
 		        try {
+		        	JOptionPane.showMessageDialog(frame, "sending message to server");
+					
 					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+					JOptionPane.showMessageDialog(frame, "sending message to server");
+					
 					ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
+					JOptionPane.showMessageDialog(frame, "sending message to server");
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
 			        System.out.println("login message fetched back");
