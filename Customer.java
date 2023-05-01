@@ -112,6 +112,19 @@ public class Customer {
 		numAccounts++;
 		accounts.add(newAccount);
 	}
+	
+	public List<String> viewAccounts() {
+		List<String> allAccounts = new ArrayList<String>();
+		// traverses the accounts made for this customer
+		for(int i = numAccounts - 1; i >= 0; i--) {
+	
+			allAccounts.add(accounts.get(i).toString());
+			
+		}
+		
+		return transactionHistory;
+	}
+	
 
 	/* idk yet
 	// add a new account to the under the Customer's name

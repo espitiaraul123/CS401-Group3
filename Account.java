@@ -106,6 +106,24 @@ public class Account {
 		return true;
 	}
 	
+
+	public List<String> viewTransactions() {
+		int count = 0;
+		List<String> transactionHistory = new ArrayList<String>();
+		// traverses the transactions in reverse order to mention the most recent transaction first
+		for(int i = numTransactions - 1; i >= 0; i--) {
+			
+			if(count > 5) {
+				break;
+			}
+		
+			transactionHistory.add(transactions.get(i).toString());
+			count++;
+		}
+		
+		return transactionHistory;
+	}
+	
 	/* idk yet
 	//get a transaction
 	public String getTransactionsByDate(Date date) {
