@@ -46,7 +46,21 @@ public class ATM extends JFrame{
     Account savingsAccount;
     Account businessAccount;
     
-    
+    public void setCustomer(Customer customer) {
+    	this.customer = customer;
+    	this.checkingAccount = customer.getAccount(AccountType.Checking);
+    	if (checkingAccount != null) {
+    		checkingAccountExists = true;
+    	}
+    	this.savingsAccount = customer.getAccount(AccountType.Savings);
+    	if (savingsAccount != null) {
+    		savingsAccountExists = true;
+    	}
+    	this.businessAccount = customer.getAccount(AccountType.Business);
+    	if (businessAccount != null) {
+    		businessAccountExists = true;
+    	}
+    }
     
     public ATM(Customer customer) throws UnknownHostException, IOException {
         //Set a custom Frame size 
@@ -135,47 +149,6 @@ public class ATM extends JFrame{
         
         labelPanel.add(new JScrollPane(customerList));
         
-        /*customerList.addListSelectionListener (
-        		new ListSelectionListener() {
-        			public void valueChanged(ListSelectionEvent e) {
-        			int index = customerList.getSelectedIndex();
-        			///get the account
-        			///if the number of accounts is less than the number selected,
-        			///the account doesn't exist.
-        			///look for the account
-        			boolean found = false;
-        			for (Account current : customer.getAccounts()) {
-        				if (current.getAccountType().equals(AccountType.Checking) && index == 0) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your checking account");
-        					
-        				}
-        				else if (current.getAccountType().equals(AccountType.Savings) && index == 1) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your savings account");
-        					
-        				}
-        				else if (current.getAccountType().equals(AccountType.Business) && index == 2) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your business account");
-        					
-        				}
-        				
-        			}
-        		
-        			if (found == false) {
-        				///tell the user that the customer doesn't have this banking account, so make one
-        				JOptionPane.showMessageDialog(frame, "The account you are looking for has not been made. Please create a bank account of this type.");
-        			}
-        		}
-        	}
-        );*/
-        
-       
-
         //Add Panel to Frame
         frame.add(labelPanel);
         frame.add(buttonPanel);
@@ -187,14 +160,7 @@ public class ATM extends JFrame{
         labelPanel.setBounds(50, 50, 200, 300);
         buttonPanel.setBounds(300, 50, 500, 500);
         
-        /*customerList.addMouseListener(new MouseAdapter() {
-        	@Override
-        	public void mouseClicked(MouseEvent e) {
-        		if (e.getClickCount() == 2) {
-        			int index = customerList.getSelectedIndex();
-        		}
-        	}
-        });*/
+        
         viewCheckingAccountBalanceButton.addActionListener(new ActionListener () {
         	
 
@@ -250,17 +216,22 @@ public class ATM extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String userID = JOptionPane.showInputDialog(frame, "Enter the user ID");
-                String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to deposit in");
                 String amount = JOptionPane.showInputDialog(frame, "Enter the amount you would like to deposit");
-                
+                Object[] possibleValues = { "Checking", "Savings", "Business" };
+
+                Object selectedValue = JOptionPane.showInputDialog(null,
+                            "Choose an account you would like to deposit into", "Accounts:",
+                            JOptionPane.INFORMATION_MESSAGE, null,
+                            possibleValues, possibleValues[0]);
+               
                 AccountType acc = AccountType.unidentified;
-                if (acountType.equals("checking")) {
+                if (possibleValues.equals("Checking")) {
                 	acc = AccountType.Checking;
                 }
-                else if (acountType.equals("savings")) {
+                else if (possibleValues.equals("Savings")) {
                 	acc = AccountType.Savings;
                 }
-                else if (acountType.equals("business")) {
+                else if (possibleValues.equals("Business")) {
                 	acc = AccountType.Business;
                 }
                 
@@ -268,7 +239,7 @@ public class ATM extends JFrame{
                 
                 List<String> data = new ArrayList<>();
                 data.add(userID);
-                data.add(acountType);
+                data.add(acc.toString());
                 data.add(amount);
                 Message newMessage = new Message(MsgType.Deposit,MsgStatus.Undefined,data);
                 
@@ -283,21 +254,20 @@ public class ATM extends JFrame{
 				
 				if (newMessage.status == MsgStatus.Success) {
 					AccountType re = newMessage.attachedAccount.getAccountType();
+					setCustomer(newMessage.attachedCustomer);
+					
 					if (re == AccountType.Checking) {
-						balanceOfChecking = newMessage.attachedAccount.getBalance();
 						checkingAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+balanceOfChecking);
+						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+checkingAccount.getBalance());
 					}
 					else if (re == AccountType.Savings) {
-						balanceOfSavings = newMessage.attachedAccount.getBalance();
 						savingsAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+balanceOfSavings);
+						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+savingsAccount.getBalance());
 						
 					}
 					else if (re == AccountType.Business) {
-						balanceOfBusiness = newMessage.attachedAccount.getBalance();
 						businessAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+balanceOfBusiness);
+						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+businessAccount.getBalance());
 						
 					}
 				}
@@ -489,5 +459,6 @@ public class ATM extends JFrame{
 
 
     }
+    
 
 }

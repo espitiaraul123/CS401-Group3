@@ -45,7 +45,13 @@ public class BankerGUI extends JFrame {
     Account businessAccount;
     
     
-    
+    public void setCustomer(Customer customer) {
+    	this.customer = customer;
+    	this.customer.setTheAccounts();
+    	balanceOfChecking = this.customer.checkingAccountBalance;
+    	balanceOfSavings = this.customer.savingsAccountBalance;
+    	balanceOfBusiness = this.customer.businessAccountBalance;
+    }
     public BankerGUI() throws UnknownHostException, IOException {
         //Set a custom Frame size 
     	Socket socket = new Socket("localhost", 1234);
@@ -125,44 +131,7 @@ public class BankerGUI extends JFrame {
         
         labelPanel.add(new JScrollPane(customerList));
         
-        /*customerList.addListSelectionListener (
-        		new ListSelectionListener() {
-        			public void valueChanged(ListSelectionEvent e) {
-        			int index = customerList.getSelectedIndex();
-        			///get the account
-        			///if the number of accounts is less than the number selected,
-        			///the account doesn't exist.
-        			///look for the account
-        			boolean found = false;
-        			for (Account current : customer.getAccounts()) {
-        				if (current.getAccountType().equals(AccountType.Checking) && index == 0) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your checking account");
-        					
-        				}
-        				else if (current.getAccountType().equals(AccountType.Savings) && index == 1) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your savings account");
-        					
-        				}
-        				else if (current.getAccountType().equals(AccountType.Business) && index == 2) {
-        					///show the account...
-        					found = true;
-        					JOptionPane.showMessageDialog(frame, "You have $"+current.getBalance()+" in your business account");
-        					
-        				}
-        				
-        			}
-        		
-        			if (found == false) {
-        				///tell the user that the customer doesn't have this banking account, so make one
-        				JOptionPane.showMessageDialog(frame, "The account you are looking for has not been made. Please create a bank account of this type.");
-        			}
-        		}
-        	}
-        );*/
+        
         
        
 
@@ -177,14 +146,7 @@ public class BankerGUI extends JFrame {
         labelPanel.setBounds(50, 50, 200, 300);
         buttonPanel.setBounds(300, 50, 500, 500);
         
-        /*customerList.addMouseListener(new MouseAdapter() {
-        	@Override
-        	public void mouseClicked(MouseEvent e) {
-        		if (e.getClickCount() == 2) {
-        			int index = customerList.getSelectedIndex();
-        		}
-        	}
-        });*/
+        
         viewCheckingAccountBalanceButton.addActionListener(new ActionListener () {
         	
 
@@ -365,6 +327,7 @@ public class BankerGUI extends JFrame {
                 // Code to execute when createButton is clicked
             	List<String> oof = new ArrayList<>();
                 String accountType = JOptionPane.showInputDialog(frame, "Account Type: ");
+                AccountType acco = AccountType.unidentified;
                 if (accountType.equals("Checking")) {
                 	checkingAccountExists = true;
                 	numOfAccounts++;
@@ -419,6 +382,7 @@ public class BankerGUI extends JFrame {
 					e1.printStackTrace();
 				}
                 if (newMessage.getStatus() == MsgStatus.Success) {
+                	setCustomer(newMessage.attachedCustomer);
                 	JOptionPane.showMessageDialog(frame, "successfully created new account");
          
                 }
@@ -474,29 +438,40 @@ public class BankerGUI extends JFrame {
         depositButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userID = JOptionPane.showInputDialog(frame, "Enter the user ID");
-                String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to deposit in");
+                
+                String[] possibleValues = { "Checking", "Savings", "Business" };
+
+                String selectedValue = (String) JOptionPane.showInputDialog(null,
+                            "Choose an account you would like to deposit into", "Accounts:",
+                            JOptionPane.INFORMATION_MESSAGE, null,
+                            possibleValues, possibleValues[0]);
+                String ac = "";
+                AccountType acc = AccountType.unidentified;
+                if (selectedValue.equals("Checking")) {
+                	acc = AccountType.Checking;
+                	ac = "Checking";
+                }
+                else if (selectedValue.equals("Savings")) {
+                	acc = AccountType.Savings;
+                	ac = "Savings";
+                }
+                else if (selectedValue.equals("Business")) {
+                	acc = AccountType.Business;
+                	ac = "Business";
+                }
                 String amount = JOptionPane.showInputDialog(frame, "Enter the amount you would like to deposit");
                 
-                AccountType acc = AccountType.unidentified;
-                if (acountType.equals("checking")) {
-                	acc = AccountType.Checking;
-                }
-                else if (acountType.equals("savings")) {
-                	acc = AccountType.Savings;
-                }
-                else if (acountType.equals("business")) {
-                	acc = AccountType.Business;
-                }
                 
                 ///find the acount
                 
                 List<String> data = new ArrayList<>();
-                data.add(userID);
-                data.add(acountType);
+                String num = String.valueOf(customer.getUserID());
+                data.add(num);
+                JOptionPane.showMessageDialog(frame, ac);
+                data.add(ac);
                 data.add(amount);
                 Message newMessage = new Message(MsgType.Deposit,MsgStatus.Undefined,data);
-                
+                double newAmount = Double.parseDouble(amount);
                 try {
 					oos.writeObject(newMessage);
 					newMessage = (Message)ois.readObject();
@@ -506,25 +481,30 @@ public class BankerGUI extends JFrame {
 					e1.printStackTrace();
 				}
 				
-				if (newMessage.status == MsgStatus.Success) {
+				if (newMessage.getStatus().equals(MsgStatus.Success)) {
 					AccountType re = newMessage.attachedAccount.getAccountType();
+					setCustomer(newMessage.attachedCustomer);
+					
 					if (re == AccountType.Checking) {
-						balanceOfChecking = newMessage.attachedAccount.getBalance();
-						checkingAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+balanceOfChecking);
+						checkingAccount.setBalance(checkingAccount.getBalance()+newAmount);
+						customer.checkingAccount = checkingAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+checkingAccount.getBalance());
 					}
 					else if (re == AccountType.Savings) {
-						balanceOfSavings = newMessage.attachedAccount.getBalance();
-						savingsAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+balanceOfSavings);
+						savingsAccount.setBalance(savingsAccount.getBalance()+newAmount);
+						customer.savingsAccount = savingsAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+savingsAccount.getBalance());
 						
 					}
 					else if (re == AccountType.Business) {
-						balanceOfBusiness = newMessage.attachedAccount.getBalance();
-						businessAccount = newMessage.attachedAccount;
-						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+balanceOfBusiness);
+						businessAccount.setBalance(businessAccount.getBalance()+newAmount);
+						customer.businessAccount = businessAccount;
+						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+businessAccount.getBalance());
 						
 					}
+					List<String> oof = new ArrayList<>();
+					oof.add(num);
+					Message newM = new Message(MsgType.UpdateCustomer, MsgStatus.Undefined, oof);
 				}
 				else {
 					JOptionPane.showMessageDialog(frame, "Unable to deposit $"+amount);
@@ -567,20 +547,16 @@ public class BankerGUI extends JFrame {
                         }
                     	JOptionPane.showMessageDialog(frame, "These are the following transactions made:\n"+transactions);
 
-                        
                     }
                     else {
                     	JOptionPane.showMessageDialog(frame, "unable to retrieve transactions");
 
                     }
                     
-                } catch (IOException e1) {
+                } catch (IOException |ClassNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				} 
                 
 
 
@@ -591,28 +567,36 @@ public class BankerGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-            	String userID = JOptionPane.showInputDialog(frame, "Enter the user ID");
-                String acountType = JOptionPane.showInputDialog(frame, "Enter the account you would like to withdraw in");
-                String amountText = JOptionPane.showInputDialog(frame, "Enter amount to withdraw:$");
-                
-                double amount = Double.parseDouble(amountText);
+                String[] possibleValues = { "Checking", "Savings", "Business" };
+
+                String selectedValue = (String) JOptionPane.showInputDialog(null,
+                            "Choose an account you would like to withdraw from", "Accounts:",
+                            JOptionPane.INFORMATION_MESSAGE, null,
+                            possibleValues, possibleValues[0]);
+                String ac = "";
                 AccountType acc = AccountType.unidentified;
-                if (acountType.equals("checking")) {
+                if (selectedValue.equals("Checking")) {
                 	acc = AccountType.Checking;
+                	ac = "Checking";
                 }
-                else if (acountType.equals("savings")) {
+                else if (selectedValue.equals("Savings")) {
                 	acc = AccountType.Savings;
+                	ac = "Savings";
                 }
-                else if (acountType.equals("business")) {
+                else if (selectedValue.equals("Business")) {
                 	acc = AccountType.Business;
+                	ac = "Business";
                 }
+                String amount = JOptionPane.showInputDialog(frame, "Enter the amount you would like to withdraw");
+                
                 
                 ///find the acount
-                List<String> data = new ArrayList<>();
-                data.add(userID);
-                data.add(acountType);
-                data.add(amountText);
                 
+                List<String> data = new ArrayList<>();
+                String num = String.valueOf(customer.getUserID());
+                data.add(num);
+                data.add(ac);
+                data.add(amount);
                 Message newMessage = new Message(MsgType.Withdraw,MsgStatus.Undefined,data);
                 
                 try {
@@ -624,29 +608,27 @@ public class BankerGUI extends JFrame {
 					e1.printStackTrace();
 				}
 				
-				if (newMessage.status == MsgStatus.Success) {
+				if (newMessage.getStatus().equals(MsgStatus.Success)) {
 					AccountType re = newMessage.attachedAccount.getAccountType();
+					setCustomer(newMessage.attachedCustomer);
+					
 					if (re == AccountType.Checking) {
-						balanceOfChecking = newMessage.attachedAccount.getBalance();
-						checkingAccount = newMessage.attachedAccount;
+						
 						JOptionPane.showMessageDialog(frame, "The new balance in your checking account is $"+checkingAccount.getBalance());
 					}
 					else if (re == AccountType.Savings) {
-						balanceOfSavings = newMessage.attachedAccount.getBalance();
-						savingsAccount = newMessage.attachedAccount;
 						
 						JOptionPane.showMessageDialog(frame, "The new balance in your savings account is $"+savingsAccount.getBalance());
 						
 					}
 					else if (re == AccountType.Business) {
-						balanceOfBusiness = newMessage.attachedAccount.getBalance();
-						businessAccount = newMessage.attachedAccount;
+						
 						JOptionPane.showMessageDialog(frame, "The new balance in your business account is $"+businessAccount.getBalance());
 						
 					}
 				}
 				else {
-					JOptionPane.showMessageDialog(frame, "Unable to deposit $"+amount);
+					JOptionPane.showMessageDialog(frame, "Unable to withdraw $"+amount);
 				}
                 
             }

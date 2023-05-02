@@ -9,6 +9,8 @@ public class Message implements Serializable {
     public Account attachedAccount;
     
     public Message(){
+    	attachedAccount = null;
+    	attachedCustomer = null;
         this.type = MsgType.Undefined;
         this.status = MsgStatus.Undefined;
         this.data = new ArrayList<>();

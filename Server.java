@@ -76,6 +76,9 @@ public class Server {
 		        		message = withdraw(message.data, customers);
 		        		objectOutputStream.writeObject(message);
 		        	}
+		        	else if (message.getType() == MsgType.UpdateCustomer) {
+		        		updateCustomer(message.attachedCustomer, message.data, customers);
+		        	}
 		        	/*System.out.println(getNewUserID());
 		        	
 		        	List<String> newCustomerData = List.of("222", "Bobby");
@@ -302,20 +305,30 @@ public class Server {
         	System.out.println("inside deposit");
         	int userID = Integer.parseInt(data.get(0));
         	String acco = data.get(1);
+        	
+        	System.out.println(acco);
         	AccountType accountType = AccountType.unidentified;
-        	if (acco.equals("checking")) {
+        	if (acco.equals("Checking")) {
         		accountType = AccountType.Checking;
+        		System.out.println("checking");
+            	
         	}
-        	else if (acco.equals("savings")) {
+        	else if (acco.equals("Savings")) {
         		accountType = AccountType.Savings;
+        		System.out.println("Savings");
+            	
         	}
-        	else if (acco.equals("business")) {
+        	else if (acco.equals("Business")) {
         		accountType = AccountType.Business;
+        		System.out.println("Business");
+            	
         	}
         	
         	double amount = Double.parseDouble(data.get(2));
         	
         	Customer customer = customers.get(userID);
+        	System.out.println("customer name is "+customer.getName());
+        	
         	//Account account = customer.getAccount(accountID);
         	Message response = new Message();
         	//Account acc = new Account(accountType);
@@ -324,22 +337,33 @@ public class Server {
         	if (customer.getAccount(accountType)!=null) {
         		
         		customer.getAccount(accountType).deposit(amount, transactionID);
-        		System.out.println("account has been updated "+customer.getAccount(accountType).getBalance());
+        		System.out.println("this is from first customer from map "+customer.getAccount(accountType).getBalance());
             	//update the rest
-        		customers.replace(userID, customer);
+        		//customers.replace(userID, customer);
         		//rewrite and reread the file now
-        		writeCustomersToFile(customers);
+        		//writeCustomersToFile(customers);
         		///attach what we need back to the message
-        		response.attachedCustomer = customers.get(userID);
+        		response.attachedCustomer = customer;
+        		System.out.println("this is from the second customer from map "+customers.get(userID).getAccount(accountType).getBalance());
+            	
+        		response.attachedAccount = customer.getAccount(accountType);
+        		response.status = MsgStatus.Success;
+        		System.out.println("this is from the second customer from map "+customers.get(userID).getAccount(accountType).getBalance());
+            	
+        		return response;
+        		
         	}
-        	
+        	else {
+        		
+        		response.status = MsgStatus.Failure;
+        	}
         	return response;
         	
         }
         
         // done
         public Message withdraw(List<String> data, Map<Integer, Customer> customers) {
-        	Message mess = new Message();
+        	Message response = new Message();
         	int userID = Integer.parseInt(data.get(0));
         	String acco = data.get(1);
         	
@@ -362,18 +386,25 @@ public class Server {
         	
         	
         	int transactionID = getNewID(2);
-        	if (account!=null) {
-        		account.withdraw(amount, transactionID);
-        		System.out.println("new balance is "+account.getBalance());
-            	
-                mess.attachedAccount = account;
-                mess.attachedCustomer = customer;
-                mess.status = MsgStatus.Success;
+        	if (customer.getAccount(accountType)!=null) {
+        		
+        		boolean re = customer.getAccount(accountType).withdraw(amount, transactionID);
+        		if (re == true) {
+        			System.out.println("account has been updated "+customer.getAccount(accountType).getBalance());
+        			customers.replace(userID, customer);
+            		//rewrite and reread the file now
+            		writeCustomersToFile(customers);
+            		///attach what we need back to the message
+            		response.attachedCustomer = customers.get(userID);
+            		response.status = MsgStatus.Success;
+        		}
+        		
         	}
         	else {
-        		mess.status = MsgStatus.Failure;
+        		
+        		response.status = MsgStatus.Failure;
         	}
-        	return mess;
+        	return response;
         }
         public Message transferFunds(List<String> data, Map<Integer, Customer> customers) {
         	String acco = data.get(0);
@@ -450,7 +481,11 @@ public class Server {
             return message;
         }
         
-        
+        public void updateCustomer(Customer newCustomer, List<String> data, Map<Integer, Customer> customers) {
+        	int oof = Integer.parseInt(data.get(0));
+        	customers.replace(oof, newCustomer);
+        	writeCustomersToFile(customers);
+        }
         
         
         // done

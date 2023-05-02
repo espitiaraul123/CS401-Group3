@@ -24,16 +24,16 @@ class Client {
 			if (selectedOption == JOptionPane.YES_OPTION) {
 				
 			
-		        String username = JOptionPane.showInputDialog(null, "Hello, please enter your username");
+		        /*String username = JOptionPane.showInputDialog(null, "Hello, please enter your username");
 				//int userid = Integer.parseInt(userID);
 				String password = JOptionPane.showInputDialog(null, "please enter your password");
-				//int pin = Integer.parseInt(PIN);
+				*///int pin = Integer.parseInt(PIN);
 				
-				if ((username+password).equals("adminbanker")) {
+				//if ((username+password).equals("adminbanker")) {
 			    	JFrame jFrame = new JFrame();
 	    		    JOptionPane.showMessageDialog(jFrame, "login was successful! welcome back banker");
 			    	BankerGUI guiForBanker = new BankerGUI();
-			    }
+			    //}
 			}
 			else {
 				//if the login is successfull open the ATM GUI
@@ -42,13 +42,14 @@ class Client {
 				
                 // Code to execute when createButton is clicked
             	
-            	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
+            	/*String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
 	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
 	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
+	        	*/
 	        	List<String> arrayOfStrings = new ArrayList<String>();
-	        	arrayOfStrings.add(fullname);
-	        	arrayOfStrings.add(userID);
-	        	arrayOfStrings.add(pin);
+	        	arrayOfStrings.add("Shrek");
+	        	arrayOfStrings.add("7030");
+	        	arrayOfStrings.add("7030");
 	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayOfStrings);
 	        	
             	//send the message to the server
@@ -80,24 +81,7 @@ class Client {
 		        	//add data to the array
 		    
 			}
-	        int choice = 2;
-	        do {
-	        	Message message = null;
-	        	//Message returnMessage = null;
-	        	switch (choice) {
-	        	case 1:
-	        		message = new Message();
-	        		objectOutputStream.writeObject(message);
-	        		// returnMessage = (Message)objectInputStream.readObject();
-	        		// System.out.println(returnMessage.getText());
-	        		break;
-	        	case 2:
-	        		break;
-	        	case 3:
-	        		break;
-	        	default:		
-	        	}
-	        } while (choice != 1);
+	        
 	        socket.close();
 		}
 		catch (IOException e) {

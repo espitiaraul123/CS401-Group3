@@ -8,12 +8,20 @@ public class Customer implements Serializable{
 	private String name;
 	private int numAccounts;
 	private List<Account> accounts;
-	
+	public Account checkingAccount;
+	public Account savingsAccount;
+	public Account businessAccount;
+	public double checkingAccountBalance;
+	public double savingsAccountBalance;
+	public double businessAccountBalance;
 	// A Customer must be initialized with user input
 	
 	// done
 	// Constructor
 	Customer(int userID, int PIN, String name) {
+		checkingAccount = null;
+		savingsAccount = null;
+		businessAccount = null;
 		this.userID = userID;
 		this.PIN = PIN;
 		this.name = name;
@@ -85,26 +93,56 @@ public class Customer implements Serializable{
 		
 		return customerAsString;
 	}
+	public void setTheAccounts() {
+		for (Account acc : accounts) {
+    		if (acc.getAccountType() == AccountType.Checking) {
+    			checkingAccount = acc;
+    			checkingAccountBalance = acc.getBalance();
+    			
+    		}
+    		else if (acc.getAccountType() == AccountType.Savings) {
+    			savingsAccount = acc;
+    			savingsAccountBalance = acc.getBalance();
+    		}
+    		else if (acc.getAccountType() == AccountType.Business) {
+    			businessAccount = acc;
+    			businessAccountBalance = acc.getBalance();
+    		}
+    		if (checkingAccount != null &&savingsAccount!=null&&businessAccount!=null) {
+    			break;
+    		}
+		}
+	}
 	public Message lookForAccount(AccountType accountType) {
+		System.out.println("looking for account");
 		Message mess = new Message();
+		boolean found =false;
 		for (Account acc : accounts) {
     		if (accountType == acc.getAccountType()) {
     			mess.attachedAccount = acc;
+    			found = true;
     			mess.status = MsgStatus.Success;
     			return mess;
     		}
 		}
-		mess.setStatus(MsgStatus.Failure);
+		if (found == false) {
+			mess.setStatus(MsgStatus.Failure);
+			
+		}
 		return mess;
 	}
 	// done
 	// Returns an account, which is asked for by its ID
 	public Account getAccount(AccountType accountType) {
+		
 		Message mess = lookForAccount(accountType);
 		if (mess.status == MsgStatus.Success) {
+			System.out.println("Account was found! in customer get account");
 			return mess.attachedAccount;
 		}
 		else
+			System.out.println("Account was not found! in customer get account");
+		
 			return null;
 		
 	}

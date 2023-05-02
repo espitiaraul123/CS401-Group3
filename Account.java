@@ -10,7 +10,7 @@ public class Account implements Serializable{
 	private int numTransactions;
 	private List<Transaction> transactions;
 	
-	// done
+	
 	// Constructor
 	Account(int Accountid,AccountType accountType) {
 		this.accountID = accountID;
@@ -19,7 +19,7 @@ public class Account implements Serializable{
 		this.numTransactions = 0;
 		this.transactions = new ArrayList<>();
 	}
-	// done
+	
 	// This constructor is just used for testing.
 	Account(int accountID, double balance, AccountType accountType, int numTransactions, List<Transaction> transactions) {
 		this.accountID = accountID;
@@ -29,7 +29,7 @@ public class Account implements Serializable{
 		this.transactions = transactions;
 	}
 	
-	// done
+	
 	// Getters
 	public int getAccountID() {
 		return accountID;
@@ -37,6 +37,7 @@ public class Account implements Serializable{
 	public double getBalance() {
 		return balance;
 	}
+	
 	public AccountType getAccountType() {
 		return accountType;
 	}
@@ -103,7 +104,7 @@ public class Account implements Serializable{
 	// done
 	public void deposit(double amount, int transactionID) {
 		balance += amount;
-		System.out.println("new balance is "+balance);
+		System.out.println("new balance is "+balance+" inside deposit");
 		Transaction transaction = new Transaction(transactionID, amount, TransactionType.DEPOSIT, java.time.LocalDate.now().toString());
 		transactions.add(transaction);
 		numTransactions++;
