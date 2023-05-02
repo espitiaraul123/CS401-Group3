@@ -278,6 +278,7 @@ public class Server {
         	readCustomersFromFile(customers);
         	///make a new response message to send back
         	Message response = new Message();
+        	response.attachedCustomer = customers.get(userID);
         	response.status = MsgStatus.Success;
         	return response;
         }
@@ -318,17 +319,18 @@ public class Server {
         	//Account account = customer.getAccount(accountID);
         	Message response = new Message();
         	//Account acc = new Account(accountType);
-        	Account account = customer.getAccount(accountType);
-        	System.out.println("current balance is "+account.getBalance());
         	int transactionID = getNewID(2);
         	
-        	if (account!=null) {
-        		account.deposit(amount, transactionID);
-        		System.out.println("new balance is "+account.getBalance());
-            	
-                response.attachedAccount = account;
-                response.attachedCustomer = customer;
-                response.status = MsgStatus.Success;
+        	if (customer.getAccount(accountType)!=null) {
+        		
+        		customer.getAccount(accountType).deposit(amount, transactionID);
+        		System.out.println("account has been updated "+customer.getAccount(accountType).getBalance());
+            	//update the rest
+        		customers.replace(userID, customer);
+        		//rewrite and reread the file now
+        		writeCustomersToFile(customers);
+        		///attach what we need back to the message
+        		response.attachedCustomer = customers.get(userID);
         	}
         	
         	return response;
