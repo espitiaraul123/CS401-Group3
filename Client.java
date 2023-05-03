@@ -24,16 +24,16 @@ class Client {
 			if (selectedOption == JOptionPane.YES_OPTION) {
 				
 			
-		        /*String username = JOptionPane.showInputDialog(null, "Hello, please enter your username");
-				//int userid = Integer.parseInt(userID);
-				String password = JOptionPane.showInputDialog(null, "please enter your password");
-				*///int pin = Integer.parseInt(PIN);
+		        String username = JOptionPane.showInputDialog(null, "Hello, please enter your username");
 				
-				//if ((username+password).equals("adminbanker")) {
+				String password = JOptionPane.showInputDialog(null, "please enter your password");
+				
+				
+				if ((username+password).equals("adminbanker")) {
 			    	JFrame jFrame = new JFrame();
 	    		    JOptionPane.showMessageDialog(jFrame, "login was successful! welcome back banker");
 			    	BankerGUI guiForBanker = new BankerGUI();
-			    //}
+			    }
 			}
 			else {
 				//if the login is successfull open the ATM GUI
@@ -42,21 +42,19 @@ class Client {
 				
                 // Code to execute when createButton is clicked
             	
-            	/*String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
+            	String fullname = JOptionPane.showInputDialog(frame, "Please enter your name");
 	        	String userID = (JOptionPane.showInputDialog(frame, "please enter your userID"));
 	        	String pin = (JOptionPane.showInputDialog(frame, "Please enter your pin"));
-	        	*/
+	        	
 	        	List<String> arrayOfStrings = new ArrayList<String>();
-	        	arrayOfStrings.add("Shrek");
-	        	arrayOfStrings.add("7030");
-	        	arrayOfStrings.add("7030");
-	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined,arrayOfStrings);
+	        	arrayOfStrings.add(fullname);
+	        	arrayOfStrings.add(userID);
+	        	arrayOfStrings.add(pin);
+	        	Message newMessage = new Message(MsgType.Login, MsgStatus.Undefined, arrayOfStrings);
 	        	
             	//send the message to the server
             	try {
-            		//ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					//ObjectInputStream ois= new ObjectInputStream(socket.getInputStream());
-					objectOutputStream.writeObject(newMessage);
+            		objectOutputStream.writeObject(newMessage);
 					newMessage = (Message)objectInputStream.readObject();
 					
 			        
@@ -73,13 +71,12 @@ class Client {
             	if (newMessage.status == MsgStatus.Success) {
 		        	JOptionPane.showMessageDialog(frame, "Successfully logged in and fetched customer");
 		        	Customer customer = newMessage.attachedCustomer;
-		        	ATM ATMgui= new ATM(customer);
+		        	ATMGUI ATMgui= new ATMGUI(customer);
             	}
             	else {
             		JOptionPane.showMessageDialog(frame, "Login was unsuccessful :(");
             	}
-		        	//add data to the array
-		    
+		        
 			}
 	        
 	        socket.close();

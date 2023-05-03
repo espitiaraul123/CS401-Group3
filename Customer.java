@@ -114,7 +114,6 @@ public class Customer implements Serializable{
 		}
 	}
 	public Message lookForAccount(AccountType accountType) {
-		System.out.println("looking for account");
 		Message mess = new Message();
 		boolean found =false;
 		for (Account acc : accounts) {
@@ -137,12 +136,10 @@ public class Customer implements Serializable{
 		
 		Message mess = lookForAccount(accountType);
 		if (mess.status == MsgStatus.Success) {
-			System.out.println("Account was found! in customer get account");
 			return mess.attachedAccount;
 		}
 		else
-			System.out.println("Account was not found! in customer get account");
-		
+			
 			return null;
 		
 	}
@@ -155,50 +152,10 @@ public class Customer implements Serializable{
 	}
 	
 	// done
-	// Add an account to the customer (used for testing)
+	// Add an account to the customer 
 	public void addAccount(Account newAccount) {
 		numAccounts++;
 		accounts.add(newAccount);
 	}
 	
-	public List<String> viewAccounts() {
-		List<String> allAccounts = new ArrayList<String>();
-		// traverses the accounts made for this customer
-		for(int i = numAccounts - 1; i >= 0; i--) {
-	
-			allAccounts.add(accounts.get(i).toString());
-			
-		}
-		
-		return transactionHistory;
-	}
-	
-
-	/* idk yet
-	// add a new account to the under the Customer's name
-	public Account addAccount(double initialDeposit, AccountType type) {
-		Account newAcct = new Account(name, type, initialDeposit);
-		accounts.add(newAcct);
-		numberOfAccounts++;
-		return newAcct;
-
-	}
-
-	public void closeAccount(int accountID) {
-		
-		Account closeAcct = findAccount(accountID, name);
-		accounts.remove(closeAcct);
-		numberOfAccounts--;
-
-
-	}
-
-	public void transferFunds(int acct1ID, int acct2ID, double amount) {
-
-		Account accountFrom = findAccount(acct1ID, name);
-		Account accountTo = findAccount(acct2ID, name);
-		accountFrom.transfer(amount, accountTo);
-
-	}
-	*/
 }
